@@ -1,14 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { createClient } from "@/utils/supabase/client";
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [activeTab, setActiveTab] = useState("home");
+  const pathname = usePathname();
+  const supabase = createClient();
+  const [profile, setProfile] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        const { data } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
+        if (data) setProfile(data);
+      }
+    };
+    fetchProfile();
+  }, []);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    window.location.href = "/auth";
+  };
 
   return (
     <div className="w-full h-screen flex relative z-10 p-4 md:p-6 gap-6 box-border">
@@ -47,8 +67,8 @@ export default function DashboardLayout({
         {/* Navigation */}
         <nav className="flex flex-col gap-3">
           <SidebarButton
-            active={activeTab === "home"}
-            onClick={() => setActiveTab("home")}
+            href="/"
+            active={pathname === "/"}
             icon={
               <svg
                 width="18"
@@ -67,8 +87,8 @@ export default function DashboardLayout({
             label="Home"
           />
           <SidebarButton
-            active={activeTab === "socratic"}
-            onClick={() => setActiveTab("socratic")}
+            href="/study-room"
+            active={pathname === "/study-room"}
             icon={
               <svg
                 width="18"
@@ -86,8 +106,29 @@ export default function DashboardLayout({
             label="Study Room"
           />
           <SidebarButton
-            active={activeTab === "heatmap"}
-            onClick={() => setActiveTab("heatmap")}
+            href="/flashcards"
+            active={pathname === "/flashcards"}
+            icon={
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <line x1="3" y1="9" x2="21" y2="9" />
+                <line x1="9" y1="21" x2="9" y2="9" />
+              </svg>
+            }
+            label="Flash Cards"
+          />
+          <SidebarButton
+            href="/heatmap"
+            active={pathname === "/heatmap"}
             icon={
               <svg
                 width="18"
@@ -111,8 +152,8 @@ export default function DashboardLayout({
           <div className="h-px bg-black/5 my-2"></div>
 
           <SidebarButton
-            active={activeTab === "shop"}
-            onClick={() => setActiveTab("shop")}
+            href="/shop"
+            active={pathname === "/shop"}
             icon={
               <svg
                 width="18"
@@ -131,6 +172,20 @@ export default function DashboardLayout({
             }
             label="Shop"
           />
+
+          <div className="mt-auto pt-4">
+            <button
+              onClick={handleSignOut}
+              className="w-full text-left px-5 py-3.5 rounded-2xl font-bold text-red-500 hover:bg-red-50 hover:text-red-600 transition-all flex items-center gap-3"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+              </svg>
+              Sign Out
+            </button>
+          </div>
         </nav>
       </aside>
 
@@ -179,10 +234,10 @@ export default function DashboardLayout({
 
             <div>
               <h2 className="text-2xl font-bold text-text leading-none mb-1.5">
-                Student
+                {profile?.qualification || "Student"}
               </h2>
               <p className="text-[10px] text-text-dim font-mono uppercase tracking-[0.2em]">
-                Scholar • XP: 117/120
+                {profile?.learner_type === 'neurodivergent' ? 'NeuroDivergent' : 'Typical'} • Lvl 12
               </p>
             </div>
           </div>
@@ -223,50 +278,37 @@ export default function DashboardLayout({
 
 function SidebarButton({
   active,
-  onClick,
+  href,
   icon,
   label,
 }: {
   active: boolean;
-  onClick: () => void;
+  href: string;
   icon: React.ReactNode;
   label: string;
 }) {
   return (
-    <button
-      onClick={onClick}
+    <Link
+      href={href}
       className={`text-left px-5 py-3.5 rounded-2xl font-bold transition-all flex items-center gap-3 ${
         active
           ? "text-accent-base border border-accent-border"
-          : "text-text-dim hover:text-accent-base border border-transparent"
+          : "text-text-dim hover:text-accent-base border border-transparent hover:bg-[var(--card-hover-bg)]"
       }`}
       style={
         active
           ? {
               background: "var(--accent-bg)",
               boxShadow:
-                "4px 4px 8px rgba(0,0,0,0.06), inset -4px -4px 8px rgba(255,255,255,0.5), inset 4px 4px 8px rgba(107,70,193,0.06)",
+                "0 2px 8px rgba(79, 70, 229, 0.08), inset 0 0 0 1px rgba(79, 70, 229, 0.1)",
             }
           : {
               background: "transparent",
             }
       }
-      onMouseEnter={(e) => {
-        if (!active) {
-          e.currentTarget.style.background = "var(--clay-bg)";
-          e.currentTarget.style.boxShadow =
-            "3px 3px 6px rgba(0,0,0,0.04), inset -3px -3px 6px rgba(255,255,255,0.4), inset 3px 3px 6px rgba(0,0,0,0.02)";
-        }
-      }}
-      onMouseLeave={(e) => {
-        if (!active) {
-          e.currentTarget.style.background = "transparent";
-          e.currentTarget.style.boxShadow = "none";
-        }
-      }}
     >
       {icon}
       {label}
-    </button>
+    </Link>
   );
 }
