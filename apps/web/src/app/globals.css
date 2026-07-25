@@ -10,44 +10,44 @@
    ═══════════════════════════════════════════════════ */
 :root {
   /* Core surfaces */
-  --color-void: #e8e0d4;
-  --color-void-2: #ddd5c9;
-  --color-panel: rgba(232, 224, 212, 0.85);
-  --color-panel-2: rgba(232, 224, 212, 0.92);
-  --color-panel-border: rgba(0, 0, 0, 0.06);
+  --color-void: #f9f9fb;
+  --color-void-2: #f1f3f5;
+  --color-panel: #ffffff;
+  --color-panel-2: #fafafa;
+  --color-panel-border: rgba(0, 0, 0, 0.04);
 
-  /* Accent (warm purple to match Fantasy-Autumn) */
-  --accent-base: #6b46c1;
-  --accent-bg: rgba(107, 70, 193, 0.08);
-  --accent-border: rgba(107, 70, 193, 0.25);
-  --accent-shadow: rgba(107, 70, 193, 0.12);
-  --accent-hover-bg: rgba(107, 70, 193, 0.14);
-  --accent-hover-border: rgba(107, 70, 193, 0.45);
-  --accent-hover-shadow: rgba(107, 70, 193, 0.20);
+  /* Accent (Professional Indigo) */
+  --accent-base: #4f46e5;
+  --accent-bg: rgba(79, 70, 229, 0.08);
+  --accent-border: rgba(79, 70, 229, 0.2);
+  --accent-shadow: rgba(79, 70, 229, 0.1);
+  --accent-hover-bg: rgba(79, 70, 229, 0.12);
+  --accent-hover-border: rgba(79, 70, 229, 0.3);
+  --accent-hover-shadow: rgba(79, 70, 229, 0.15);
 
   /* Text */
-  --color-text: #2d2a26;
-  --color-text-dim: #6b6560;
-  --color-text-dimmer: #9a948f;
+  --color-text: #1f2937;
+  --color-text-dim: #6b7280;
+  --color-text-dimmer: #9ca3af;
 
-  /* Clay system */
-  --clay-bg: rgba(232, 224, 212, 0.75);
-  --clay-border: rgba(0, 0, 0, 0.05);
-  --clay-shadow-outer: 6px 6px 12px rgba(0, 0, 0, 0.08);
-  --clay-shadow-inset-light: inset -6px -6px 12px rgba(255, 255, 255, 0.7);
-  --clay-shadow-inset-dark: inset 6px 6px 12px rgba(0, 0, 0, 0.04);
-  --clay-shadow: var(--clay-shadow-outer), var(--clay-shadow-inset-light), var(--clay-shadow-inset-dark);
-  --clay-shimmer: rgba(255, 255, 255, 0.35);
+  /* Clean Paper system (Replaces heavy Clay) */
+  --clay-bg: #ffffff;
+  --clay-border: rgba(0, 0, 0, 0.06);
+  --clay-shadow-outer: 0 4px 14px rgba(0, 0, 0, 0.03), 0 1px 3px rgba(0,0,0,0.02);
+  --clay-shadow-inset-light: inset 0 0 0 transparent;
+  --clay-shadow-inset-dark: inset 0 0 0 transparent;
+  --clay-shadow: var(--clay-shadow-outer);
+  --clay-shimmer: transparent;
 
   /* Inputs & controls */
-  --input-bg: rgba(0, 0, 0, 0.03);
+  --input-bg: #f9fafb;
   --input-border: rgba(0, 0, 0, 0.08);
-  --card-border: rgba(0, 0, 0, 0.05);
+  --card-border: rgba(0, 0, 0, 0.06);
   --card-hover-border: rgba(0, 0, 0, 0.12);
-  --card-hover-bg: rgba(0, 0, 0, 0.03);
+  --card-hover-bg: #f3f4f6;
 
   /* Transition */
-  --theme-transition: background .4s ease, color .3s ease, border-color .3s ease, box-shadow .3s ease;
+  --theme-transition: background .3s ease, color .3s ease, border-color .3s ease, box-shadow .3s ease, transform .2s ease;
 }
 
 /* ═══════════════════════════════════════════════════ */
@@ -104,11 +104,11 @@
   z-index: 1;
   background: linear-gradient(
     180deg,
-    rgba(232, 224, 212, 0.55) 0%,
-    rgba(232, 224, 212, 0.35) 50%,
-    rgba(232, 224, 212, 0.60) 100%
+    rgba(249, 249, 251, 0.90) 0%,
+    rgba(249, 249, 251, 0.85) 50%,
+    rgba(249, 249, 251, 0.95) 100%
   );
-  backdrop-filter: blur(2px);
+  backdrop-filter: blur(8px);
   pointer-events: none;
 }
 
