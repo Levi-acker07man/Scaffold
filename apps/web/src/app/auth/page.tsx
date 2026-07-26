@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 
 /* ─── Password strength ─── */
 const PW_LABELS = ["", "Weak", "Fair", "Good", "Strong", "🔒 Fort Knox"];
-const PW_COLORS = ["", "#ef4444", "#f59e0b", "#eab308", "#10b981", "#06b6d4"];
+const PW_COLORS = ["", "#ef4444", "#f59e0b", "#eab308", "#a3a3a3", "#e2e8f0"];
 function calcPwStrength(pw: string): number {
   if (!pw) return 0;
   let s = 0;
@@ -18,25 +18,25 @@ function calcPwStrength(pw: string): number {
   return s;
 }
 
-/* ─── Ink splash colors (Emerald, Cyan, Teal, Sky, Gold) ─── */
+/* ─── Ink splash colors (White, Silver, Platinum, Frosty) ─── */
 const SPLASH_COLORS = [
-  "rgba(16,185,129,0.6)", "rgba(6,182,212,0.55)", "rgba(56,189,248,0.5)",
-  "rgba(245,158,11,0.55)", "rgba(20,184,166,0.55)", "rgba(59,130,246,0.45)",
+  "rgba(255,255,255,0.6)", "rgba(226,232,240,0.55)", "rgba(203,213,225,0.5)",
+  "rgba(248,250,252,0.55)", "rgba(241,245,249,0.55)", "rgba(226,232,240,0.45)",
 ];
 
-/* ─── Study Owl (Emerald & Teal Scholar) ─── */
-function StudyOwl({ isPasswordFocused }: { isPasswordFocused: boolean }) {
-  const owlRef = useRef<SVGSVGElement>(null);
+/* ─── Peeking Panda (White & Black, peeking from behind a wall) ─── */
+function PeekingPanda({ isPasswordFocused }: { isPasswordFocused: boolean }) {
+  const pandaRef = useRef<SVGSVGElement>(null);
   const [eyeOffset, setEyeOffset] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     let animationFrameId: number;
     const handleMouseMove = (e: MouseEvent) => {
-      if (isPasswordFocused || !owlRef.current) return;
+      if (isPasswordFocused || !pandaRef.current) return;
       cancelAnimationFrame(animationFrameId);
       animationFrameId = requestAnimationFrame(() => {
-        if (!owlRef.current) return;
-        const rect = owlRef.current.getBoundingClientRect();
+        if (!pandaRef.current) return;
+        const rect = pandaRef.current.getBoundingClientRect();
         const cx = rect.left + rect.width / 2;
         const cy = rect.top + rect.height / 2;
         const dx = e.clientX - cx;
@@ -55,27 +55,83 @@ function StudyOwl({ isPasswordFocused }: { isPasswordFocused: boolean }) {
   }, [isPasswordFocused]);
 
   return (
-    <svg ref={owlRef} viewBox="0 0 120 120" width="100" height="100" style={{ filter: "drop-shadow(0 8px 24px rgba(6,182,212,0.3))" }}>
-      <ellipse cx="60" cy="72" rx="38" ry="34" fill="#0f766e" /><ellipse cx="60" cy="74" rx="30" ry="26" fill="#0d9488" />
-      <ellipse cx="60" cy="82" rx="18" ry="14" fill="#ccfbf1" />
-      <polygon points="30,44 22,20 42,38" fill="#0f766e" /><polygon points="90,44 98,20 78,38" fill="#0f766e" />
-      <polygon points="32,42 26,24 42,38" fill="#0d9488" /><polygon points="88,42 94,24 78,38" fill="#0d9488" />
-      <circle cx="60" cy="46" r="26" fill="#0d9488" /><circle cx="60" cy="46" r="23" fill="#14b8a6" />
-      <ellipse cx="47" cy="44" rx="10" ry="11" fill="white" /><ellipse cx="73" cy="44" rx="10" ry="11" fill="white" />
+    <svg
+      ref={pandaRef}
+      viewBox="0 0 140 75"
+      width="120"
+      height="65"
+      style={{
+        filter: "drop-shadow(0 4px 16px rgba(255,255,255,0.12))",
+        overflow: "visible",
+        display: "block",
+      }}
+    >
+      {/* === PANDA HEAD peeks over the card top edge === */}
+
+      {/* Ears */}
+      <ellipse cx="38" cy="14" rx="13" ry="13" fill="#1a1a2e" />
+      <ellipse cx="102" cy="14" rx="13" ry="13" fill="#1a1a2e" />
+      <ellipse cx="38" cy="14" rx="8" ry="8" fill="#2d2d44" />
+      <ellipse cx="102" cy="14" rx="8" ry="8" fill="#2d2d44" />
+
+      {/* Head */}
+      <ellipse cx="70" cy="35" rx="34" ry="30" fill="#f8fafc" />
+      <ellipse cx="70" cy="37" rx="31" ry="26" fill="#ffffff" />
+
+      {/* Eye patches (dark panda patches) */}
+      <ellipse cx="53" cy="33" rx="13" ry="11" fill="#1a1a2e" transform="rotate(-8 53 33)" />
+      <ellipse cx="87" cy="33" rx="13" ry="11" fill="#1a1a2e" transform="rotate(8 87 33)" />
+
+      {/* White of eyes */}
+      <ellipse cx="53" cy="33" rx="8.5" ry="8.5" fill="white" />
+      <ellipse cx="87" cy="33" rx="8.5" ry="8.5" fill="white" />
+
+      {/* Pupils - follow cursor or cover when password focused */}
       {isPasswordFocused ? (<>
-        <ellipse cx="47" cy="44" rx="13" ry="13" fill="#0f766e" opacity="0.95"><animate attributeName="rx" from="5" to="13" dur="0.3s" fill="freeze" /></ellipse>
-        <ellipse cx="73" cy="44" rx="13" ry="13" fill="#0f766e" opacity="0.95"><animate attributeName="rx" from="5" to="13" dur="0.3s" fill="freeze" /></ellipse>
-        <ellipse cx="47" cy="44" rx="10" ry="10" fill="#0d9488" opacity="0.6" /><ellipse cx="73" cy="44" rx="10" ry="10" fill="#0d9488" opacity="0.6" />
+        {/* Panda covers eyes with paws */}
+        <ellipse cx="53" cy="33" rx="11" ry="10" fill="#f8fafc" opacity="0.97">
+          <animate attributeName="rx" from="4" to="11" dur="0.3s" fill="freeze" />
+        </ellipse>
+        <ellipse cx="87" cy="33" rx="11" ry="10" fill="#f8fafc" opacity="0.97">
+          <animate attributeName="rx" from="4" to="11" dur="0.3s" fill="freeze" />
+        </ellipse>
+        {/* Paw pad details on covering paws */}
+        <ellipse cx="47" cy="31" rx="3.5" ry="3" fill="#1a1a2e" opacity="0.25" />
+        <ellipse cx="53" cy="28" rx="3.5" ry="3" fill="#1a1a2e" opacity="0.25" />
+        <ellipse cx="59" cy="31" rx="3.5" ry="3" fill="#1a1a2e" opacity="0.25" />
+        <ellipse cx="81" cy="31" rx="3.5" ry="3" fill="#1a1a2e" opacity="0.25" />
+        <ellipse cx="87" cy="28" rx="3.5" ry="3" fill="#1a1a2e" opacity="0.25" />
+        <ellipse cx="93" cy="31" rx="3.5" ry="3" fill="#1a1a2e" opacity="0.25" />
       </>) : (<>
-        <circle cx={47 + eyeOffset.x} cy={44 + eyeOffset.y} r="5" fill="#042f2e" />
-        <circle cx={73 + eyeOffset.x} cy={44 + eyeOffset.y} r="5" fill="#042f2e" />
-        <circle cx={49 + eyeOffset.x * 0.5} cy={42 + eyeOffset.y * 0.5} r="2" fill="white" opacity="0.9" />
-        <circle cx={75 + eyeOffset.x * 0.5} cy={42 + eyeOffset.y * 0.5} r="2" fill="white" opacity="0.9" />
+        <circle cx={53 + eyeOffset.x} cy={33 + eyeOffset.y} r="4" fill="#1a1a2e" />
+        <circle cx={87 + eyeOffset.x} cy={33 + eyeOffset.y} r="4" fill="#1a1a2e" />
+        {/* Eye highlights */}
+        <circle cx={55 + eyeOffset.x * 0.5} cy={31 + eyeOffset.y * 0.5} r="1.8" fill="white" opacity="0.9" />
+        <circle cx={89 + eyeOffset.x * 0.5} cy={31 + eyeOffset.y * 0.5} r="1.8" fill="white" opacity="0.9" />
       </>)}
-      <polygon points="56,52 64,52 60,58" fill="#f59e0b" /><polygon points="57,52 63,52 60,55" fill="#d97706" />
-      <ellipse cx="50" cy="104" rx="8" ry="3" fill="#f59e0b" /><ellipse cx="70" cy="104" rx="8" ry="3" fill="#f59e0b" />
-      <rect x="40" y="22" width="40" height="4" rx="1" fill="#1e293b" /><polygon points="60,14 40,24 80,24" fill="#334155" />
-      <line x1="76" y1="24" x2="82" y2="34" stroke="#f59e0b" strokeWidth="1.5" /><circle cx="82" cy="35" r="2.5" fill="#f59e0b" />
+
+      {/* Nose */}
+      <ellipse cx="70" cy="43" rx="4.5" ry="3" fill="#1a1a2e" />
+      <ellipse cx="69" cy="42" rx="1.8" ry="1.2" fill="#3a3a5e" opacity="0.5" />
+
+      {/* Mouth */}
+      <path d="M 66.5 46 Q 70 49.5 73.5 46" stroke="#1a1a2e" strokeWidth="1.3" fill="none" strokeLinecap="round" />
+      <line x1="70" y1="45.5" x2="70" y2="47" stroke="#1a1a2e" strokeWidth="1" strokeLinecap="round" />
+
+      {/* Blush spots */}
+      <ellipse cx="41" cy="41" rx="4.5" ry="2.5" fill="#fca5a5" opacity="0.22" />
+      <ellipse cx="99" cy="41" rx="4.5" ry="2.5" fill="#fca5a5" opacity="0.22" />
+
+      {/* Paws gripping the card top edge (at bottom of SVG) */}
+      <ellipse cx="48" cy="62" rx="11" ry="7" fill="#f8fafc" />
+      <ellipse cx="92" cy="62" rx="11" ry="7" fill="#f8fafc" />
+      {/* Paw pad details */}
+      <ellipse cx="42" cy="61" rx="3" ry="2.2" fill="#e2e8f0" opacity="0.5" />
+      <ellipse cx="48" cy="58.5" rx="3" ry="2.2" fill="#e2e8f0" opacity="0.5" />
+      <ellipse cx="54" cy="61" rx="3" ry="2.2" fill="#e2e8f0" opacity="0.5" />
+      <ellipse cx="86" cy="61" rx="3" ry="2.2" fill="#e2e8f0" opacity="0.5" />
+      <ellipse cx="92" cy="58.5" rx="3" ry="2.2" fill="#e2e8f0" opacity="0.5" />
+      <ellipse cx="98" cy="61" rx="3" ry="2.2" fill="#e2e8f0" opacity="0.5" />
     </svg>
   );
 }
@@ -251,11 +307,15 @@ export default function AuthPage() {
         }
         @keyframes moonBreath { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes owlBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+
         @keyframes auroraWave {
           0% { transform: translateX(-30%) skewX(-5deg); }
           50% { transform: translateX(10%) skewX(5deg); }
           100% { transform: translateX(-30%) skewX(-5deg); }
+        }
+        @keyframes pandaFloat {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-6px); }
         }
         @keyframes orbitRing { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
@@ -325,27 +385,27 @@ export default function AuthPage() {
         .a2 { animation: slideUp 0.5s ease-out 0.12s forwards; opacity: 0; }
         .a3 { animation: slideUp 0.5s ease-out 0.24s forwards; opacity: 0; }
         .a4 { animation: counter-in 0.6s ease-out 0.5s forwards; opacity: 0; }
-        .owl-bob { animation: owlBob 3s ease-in-out infinite; }
+
 
         @media (prefers-reduced-motion: reduce) {
           *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
         }
       `}</style>
 
-      {/* ══════ BACKGROUND (Obsidian & Ocean Emerald/Cyan) ══════ */}
+      {/* ══════ BACKGROUND (Deep Obsidian & Frost/Moonlight) ══════ */}
       <div
         className="absolute inset-0"
         style={{
-          background: "linear-gradient(145deg, #060913 0%, #08111e 35%, #0b1a2e 70%, #060c16 100%)",
+          background: "linear-gradient(145deg, #060913 0%, #0a0f1e 35%, #0e1528 70%, #060c16 100%)",
         }}
       >
-        {/* ── Aurora Borealis (Emerald & Cyan Ocean Wave) ── */}
-        <div className="absolute top-0 left-0 right-0 h-[55%] pointer-events-none overflow-hidden opacity-35">
+        {/* ── Aurora Borealis (White & Platinum Frosty Wave) ── */}
+        <div className="absolute top-0 left-0 right-0 h-[55%] pointer-events-none overflow-hidden opacity-30">
           <div
             className="absolute inset-0"
             style={{
               background:
-                "linear-gradient(90deg, transparent 0%, rgba(16, 185, 129, 0.22) 25%, rgba(6, 182, 212, 0.28) 50%, rgba(56, 189, 248, 0.22) 75%, transparent 100%)",
+                "linear-gradient(90deg, transparent 0%, rgba(226, 232, 240, 0.18) 25%, rgba(248, 250, 252, 0.22) 50%, rgba(203, 213, 225, 0.18) 75%, transparent 100%)",
               filter: "blur(65px)",
               animation: "auroraWave 16s ease-in-out infinite",
               width: "180%",
@@ -405,7 +465,7 @@ export default function AuthPage() {
             left: "55%",
             width: 110,
             height: 2,
-            background: "linear-gradient(to right, transparent, rgba(165,243,252,0.7), white)",
+            background: "linear-gradient(to right, transparent, rgba(226,232,240,0.7), white)",
             borderRadius: 2,
             animation: "shootStar 4s linear 6s infinite",
           }}
@@ -417,7 +477,7 @@ export default function AuthPage() {
             left: "15%",
             width: 90,
             height: 2,
-            background: "linear-gradient(to right, transparent, rgba(165,243,252,0.7), white)",
+            background: "linear-gradient(to right, transparent, rgba(226,232,240,0.7), white)",
             borderRadius: 2,
             animation: "shootStar 4.5s linear 11s infinite",
           }}
@@ -437,7 +497,7 @@ export default function AuthPage() {
               animation: "orbitRing 25s linear infinite",
             }}
           >
-            <div className="absolute rounded-full bg-cyan-300" style={{ width: 4, height: 4, top: 0, left: 48 }} />
+            <div className="absolute rounded-full bg-slate-300" style={{ width: 4, height: 4, top: 0, left: 48 }} />
           </div>
           <div
             className="rounded-full"
@@ -486,14 +546,14 @@ export default function AuthPage() {
           </div>
         ))}
 
-        {/* ── Floating Books (Emerald/Cyan/Amber Palette) ── */}
+        {/* ── Floating Books (White/Silver/Platinum Palette) ── */}
         {[
-          { x: "15%", y: "65%", sz: 46, rot: -12, c: "#10b981", fd: 0.5 },
-          { x: "38%", y: "28%", sz: 42, rot: 15, c: "#06b6d4", fd: 1.2 },
-          { x: "52%", y: "15%", sz: 50, rot: -10, c: "#0d9488", fd: 0 },
-          { x: "74%", y: "42%", sz: 44, rot: 14, c: "#14b8a6", fd: 1.5 },
-          { x: "60%", y: "68%", sz: 40, rot: -16, c: "#0284c7", fd: 0.8 },
-          { x: "85%", y: "75%", sz: 36, rot: 10, c: "#f59e0b", fd: 2.2 },
+          { x: "15%", y: "65%", sz: 46, rot: -12, c: "#cbd5e1", fd: 0.5 },
+          { x: "38%", y: "28%", sz: 42, rot: 15, c: "#e2e8f0", fd: 1.2 },
+          { x: "52%", y: "15%", sz: 50, rot: -10, c: "#94a3b8", fd: 0 },
+          { x: "74%", y: "42%", sz: 44, rot: 14, c: "#f1f5f9", fd: 1.5 },
+          { x: "60%", y: "68%", sz: 40, rot: -16, c: "#cbd5e1", fd: 0.8 },
+          { x: "85%", y: "75%", sz: 36, rot: 10, c: "#e2e8f0", fd: 2.2 },
         ].map((b, i) => (
           <div
             key={`b${i}`}
@@ -518,7 +578,7 @@ export default function AuthPage() {
               <line x1="18" y1="14" x2="38" y2="14" stroke={b.c} opacity="0.2" strokeWidth="1.5" />
               <line x1="18" y1="22" x2="34" y2="22" stroke={b.c} opacity="0.15" strokeWidth="1.5" />
               <line x1="18" y1="30" x2="36" y2="30" stroke={b.c} opacity="0.12" strokeWidth="1.5" />
-              <rect x="32" y="0" width="4" height="16" rx="1" fill="#f59e0b" opacity="0.7" />
+              <rect x="32" y="0" width="4" height="16" rx="1" fill="#94a3b8" opacity="0.7" />
             </svg>
           </div>
         ))}
@@ -529,7 +589,7 @@ export default function AuthPage() {
         className="absolute inset-0 z-[2] pointer-events-none"
         style={{
           background:
-            "radial-gradient(circle at 50% 40%, rgba(6, 182, 212, 0.12) 0%, transparent 60%), radial-gradient(circle at 80% 30%, rgba(16, 185, 129, 0.06) 0%, transparent 50%)",
+            "radial-gradient(circle at 50% 40%, rgba(226, 232, 240, 0.08) 0%, transparent 60%), radial-gradient(circle at 80% 30%, rgba(248, 250, 252, 0.04) 0%, transparent 50%)",
         }}
       />
 
@@ -555,12 +615,14 @@ export default function AuthPage() {
             className="text-4xl sm:text-6xl md:text-7xl font-black tracking-widest text-center leading-none transition-all duration-300 whitespace-nowrap flex justify-center items-center"
             style={{
               fontFamily: "var(--font-outfit)",
-              background: "linear-gradient(135deg, #10b981 0%, #06b6d4 50%, #38bdf8 100%)",
+              background: "linear-gradient(135deg, #e2e8f0 0%, #f8fafc 40%, #cbd5e1 70%, #f1f5f9 100%)",
               WebkitBackgroundClip: "text",
+              backgroundClip: "text",
               WebkitTextFillColor: "transparent",
-              filter: titleHovered
-                ? "drop-shadow(0 0 35px rgba(6, 182, 212, 0.85)) drop-shadow(0 0 15px rgba(16, 185, 129, 0.6))"
-                : "drop-shadow(0 10px 25px rgba(6, 182, 212, 0.35))",
+              color: "transparent",
+              textShadow: titleHovered
+                ? "0 0 40px rgba(248, 250, 252, 0.4), 0 0 80px rgba(226, 232, 240, 0.2)"
+                : "0 0 30px rgba(226, 232, 240, 0.15)",
             }}
           >
             {"SCAFFOLD".split("").map((char, i) => {
@@ -596,27 +658,27 @@ export default function AuthPage() {
               transformStyle: "preserve-3d",
             }}
           >
-            <div className="flex justify-center -mb-8 relative z-20 owl-bob">
-              <StudyOwl isPasswordFocused={isPasswordFocused} />
+            <div className="flex justify-center -mb-4 relative z-20" style={{ animation: "pandaFloat 3s ease-in-out infinite" }}>
+              <PeekingPanda isPasswordFocused={isPasswordFocused} />
             </div>
             <div
-              className="auth-panel rounded-3xl p-8 pt-12 relative overflow-hidden"
+              className="auth-panel rounded-3xl p-8 pt-10 relative"
               style={{
                 background: "linear-gradient(145deg, rgba(16, 25, 38, 0.88) 0%, rgba(10, 15, 26, 0.94) 100%)",
                 boxShadow:
-                  "0 30px 70px -15px rgba(0, 0, 0, 0.85), 0 0 50px rgba(6, 182, 212, 0.18), inset 0 1px 1px rgba(255, 255, 255, 0.15)",
+                  "0 30px 70px -15px rgba(0, 0, 0, 0.85), 0 0 50px rgba(226, 232, 240, 0.1), inset 0 1px 1px rgba(255, 255, 255, 0.15)",
                 border: "1px solid rgba(255, 255, 255, 0.12)",
                 backdropFilter: "blur(28px)",
               }}
             >
-              {/* Subtle top border cyan/emerald highlight line */}
-              <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-400/60 to-transparent" />
+              {/* Subtle top border white/silver highlight line */}
+              <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-slate-300/50 to-transparent" />
 
               <h2 className="text-xl font-extrabold text-white mb-1 text-center tracking-tight">
                 {isLogin ? "Welcome Back" : "Create Account"}
               </h2>
               <p className="text-slate-400 text-xs font-medium mb-6 text-center">
-                {isLogin ? "The owl is watching you type... 👀" : "Register to start your journey!"}
+                {isLogin ? "The panda is watching you type... 🐼" : "Register to start your journey!"}
               </p>
 
               {error && (
@@ -668,7 +730,7 @@ export default function AuthPage() {
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
                       placeholder="John"
-                      className="w-full px-4 py-3 bg-[#060a12]/90 border border-white/10 rounded-xl text-slate-100 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-400 transition-all placeholder:text-slate-500 hover:border-white/20 shadow-inner"
+                      className="w-full px-4 py-3 bg-[#060a12]/90 border border-white/10 rounded-xl text-slate-100 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-slate-400/50 focus:border-slate-400 transition-all placeholder:text-slate-500 hover:border-white/20 shadow-inner"
                     />
                   </div>
                   <div className="flex-1">
@@ -681,7 +743,7 @@ export default function AuthPage() {
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
                       placeholder="Doe"
-                      className="w-full px-4 py-3 bg-[#060a12]/90 border border-white/10 rounded-xl text-slate-100 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-400 transition-all placeholder:text-slate-500 hover:border-white/20 shadow-inner"
+                      className="w-full px-4 py-3 bg-[#060a12]/90 border border-white/10 rounded-xl text-slate-100 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-slate-400/50 focus:border-slate-400 transition-all placeholder:text-slate-500 hover:border-white/20 shadow-inner"
                     />
                   </div>
                 </div>
@@ -699,7 +761,7 @@ export default function AuthPage() {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@example.com"
                     onFocus={() => setIsPasswordFocused(false)}
-                    className="w-full px-4 py-3 bg-[#060a12]/90 border border-white/10 rounded-xl text-slate-100 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-400 transition-all placeholder:text-slate-500 hover:border-white/20 shadow-inner"
+                    className="w-full px-4 py-3 bg-[#060a12]/90 border border-white/10 rounded-xl text-slate-100 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-slate-400/50 focus:border-slate-400 transition-all placeholder:text-slate-500 hover:border-white/20 shadow-inner"
                   />
                 </div>
                 <div>
@@ -714,7 +776,7 @@ export default function AuthPage() {
                     placeholder="••••••••"
                     onFocus={() => setIsPasswordFocused(true)}
                     onBlur={() => setIsPasswordFocused(false)}
-                    className="w-full px-4 py-3 bg-[#060a12]/90 border border-white/10 rounded-xl text-slate-100 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-400 transition-all placeholder:text-slate-500 hover:border-white/20 shadow-inner"
+                    className="w-full px-4 py-3 bg-[#060a12]/90 border border-white/10 rounded-xl text-slate-100 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-slate-400/50 focus:border-slate-400 transition-all placeholder:text-slate-500 hover:border-white/20 shadow-inner"
                   />
                 </div>
 
@@ -743,11 +805,11 @@ export default function AuthPage() {
                   type="submit"
                   disabled={loading}
                   style={{
-                    background: "linear-gradient(135deg, #059669 0%, #0891b2 50%, #0284c7 100%)",
+                    background: "linear-gradient(135deg, #475569 0%, #64748b 50%, #94a3b8 100%)",
                     boxShadow:
-                      "0 10px 30px -5px rgba(6, 182, 212, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.3)",
+                      "0 10px 30px -5px rgba(148, 163, 184, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.3)",
                   }}
-                  className="auth-shimmer-btn w-full mt-2 py-3 rounded-xl text-white font-extrabold text-sm tracking-wide disabled:opacity-50 hover:shadow-cyan-500/40 hover:scale-[1.02] active:scale-[0.99] transition-all cursor-pointer"
+                  className="auth-shimmer-btn w-full mt-2 py-3 rounded-xl text-white font-extrabold text-sm tracking-wide disabled:opacity-50 hover:shadow-slate-400/40 hover:scale-[1.02] active:scale-[0.99] transition-all cursor-pointer"
                 >
                   {loading ? "Processing..." : isLogin ? "Sign In" : "Register Now"}
                 </button>
@@ -757,7 +819,7 @@ export default function AuthPage() {
                 {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
                 <button
                   onClick={() => setIsLogin(!isLogin)}
-                  className="text-cyan-400 font-extrabold hover:text-cyan-300 hover:underline cursor-pointer"
+                  className="text-slate-300 font-extrabold hover:text-white hover:underline cursor-pointer"
                 >
                   {isLogin ? "Register here" : "Sign in here"}
                 </button>
@@ -769,4 +831,3 @@ export default function AuthPage() {
     </div>
   );
 }
-
