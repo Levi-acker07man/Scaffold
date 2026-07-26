@@ -3,6 +3,8 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { LenisProvider } from "@/shared/components/LenisProvider";
 import { AmbientBackground } from "@/shared/components/AmbientBackground";
+import { ThemeProvider } from "@/shared/components/ThemeProvider";
+
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -17,15 +19,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${inter.className} min-h-screen`}>
-        <AmbientBackground />
-        <LenisProvider>
-          <div className="relative z-10">
-            {children}
-          </div>
-        </LenisProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <AmbientBackground />
+          <LenisProvider>
+            <div className="relative z-10">
+              {children}
+            </div>
+          </LenisProvider>
+        </ThemeProvider>
       </body>
     </html>
+
   );
 }

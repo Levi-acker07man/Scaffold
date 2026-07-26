@@ -50,6 +50,45 @@
   --theme-transition: background .3s ease, color .3s ease, border-color .3s ease, box-shadow .3s ease, transform .2s ease;
 }
 
+.dark {
+  /* Core surfaces */
+  --color-void: #0f1115;
+  --color-void-2: #16181d;
+  --color-panel: #16181d;
+  --color-panel-2: #1e2028;
+  --color-panel-border: rgba(255, 255, 255, 0.05);
+
+  /* Accent (Professional Indigo, brighter for dark mode) */
+  --accent-base: #818cf8;
+  --accent-bg: rgba(129, 140, 248, 0.1);
+  --accent-border: rgba(129, 140, 248, 0.25);
+  --accent-shadow: rgba(129, 140, 248, 0.15);
+  --accent-hover-bg: rgba(129, 140, 248, 0.15);
+  --accent-hover-border: rgba(129, 140, 248, 0.4);
+  --accent-hover-shadow: rgba(129, 140, 248, 0.25);
+
+  /* Text */
+  --color-text: #f3f4f6;
+  --color-text-dim: #9ca3af;
+  --color-text-dimmer: #6b7280;
+
+  /* Clean Paper system -> Dark Glass */
+  --clay-bg: #16181d;
+  --clay-border: rgba(255, 255, 255, 0.08);
+  --clay-shadow-outer: 0 4px 14px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0,0,0,0.2);
+  --clay-shadow-inset-light: inset 0 0 0 transparent;
+  --clay-shadow-inset-dark: inset 0 0 0 transparent;
+  --clay-shadow: var(--clay-shadow-outer);
+  --clay-shimmer: transparent;
+
+  /* Inputs & controls */
+  --input-bg: #1e2028;
+  --input-border: rgba(255, 255, 255, 0.1);
+  --card-border: rgba(255, 255, 255, 0.08);
+  --card-hover-border: rgba(255, 255, 255, 0.15);
+  --card-hover-bg: #1f222b;
+}
+
 /* ═══════════════════════════════════════════════════ */
 
 @layer base {
@@ -110,6 +149,15 @@
   );
   backdrop-filter: blur(8px);
   pointer-events: none;
+}
+
+.dark .ambient::after {
+  background: linear-gradient(
+    180deg,
+    rgba(15, 17, 21, 0.90) 0%,
+    rgba(15, 17, 21, 0.85) 50%,
+    rgba(15, 17, 21, 0.95) 100%
+  );
 }
 
 /* Subtle grain texture */

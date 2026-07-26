@@ -4,6 +4,9 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
+import { ThemeToggle } from "@/shared/components/ThemeToggle";
+import { AvatarPicker } from "@/shared/components/AvatarPicker";
+
 
 export default function DashboardLayout({
   children,
@@ -13,11 +16,13 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const supabase = createClient();
   const [profile, setProfile] = useState<any>(null);
+  const [sessionUser, setSessionUser] = useState<any>(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
+        setSessionUser(session.user);
         const { data } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
         if (data) setProfile(data);
       }
@@ -251,21 +256,17 @@ export default function DashboardLayout({
               <span className="text-yellow-500 font-bold">🪙</span>
               450
             </div>
-            <div
-              className="w-10 h-10 rounded-full flex items-center justify-center cursor-pointer"
-              style={{
-                background: "var(--accent-bg)",
-                border: "1.5px solid var(--accent-border)",
-                boxShadow:
-                  "3px 3px 6px rgba(0,0,0,0.05), inset -3px -3px 6px rgba(255,255,255,0.5), inset 3px 3px 6px rgba(0,0,0,0.03)",
-              }}
-            >
-              <span className="font-bold text-accent-base text-sm">
-                SR
-              </span>
-            </div>
+            
+            <ThemeToggle />
+            
+            <AvatarPicker 
+              initialPic={sessionUser?.user_metadata?.profilePic}
+              initialFrame={sessionUser?.user_metadata?.profileFrame}
+              initials={profile?.qualification ? profile.qualification.charAt(0) : "SR"} 
+            />
           </div>
         </header>
+
 
         {/* Page Content */}
         <div className="flex-1 overflow-y-auto pr-2 pb-10 scrollbar-hide">

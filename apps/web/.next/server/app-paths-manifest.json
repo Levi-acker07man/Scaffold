@@ -1,3 +1,8 @@
 {
-  "/auth/page": "app/auth/page.js"
+  "/_not-found/page": "app/_not-found/page.js",
+  "/auth/page": "app/auth/page.js",
+  "/onboarding/page": "app/onboarding/page.js",
+  "/(dashboard)/study-room/page": "app/(dashboard)/study-room/page.js",
+  "/(dashboard)/flashcards/page": "app/(dashboard)/flashcards/page.js",
+  "/(dashboard)/page": "app/(dashboard)/page.js"
 }
