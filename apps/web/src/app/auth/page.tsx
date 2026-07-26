@@ -1,8 +1,41 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
+
+/* ─── Typewriter words ─── */
+const TW_WORDS = ["Learn Smarter", "Think Deeper", "Grow Faster", "Explore More"];
+
+/* ─── Password strength ─── */
+const PW_LABELS = ["", "Weak", "Fair", "Good", "Strong", "🔒 Fort Knox"];
+const PW_COLORS = ["", "#ef4444", "#f59e0b", "#eab308", "#22c55e", "#a78bfa"];
+function calcPwStrength(pw: string): number {
+  if (!pw) return 0;
+  let s = 0;
+  if (pw.length >= 6) s++;
+  if (pw.length >= 10) s++;
+  if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) s++;
+  if (/\d/.test(pw)) s++;
+  if (/[^A-Za-z0-9]/.test(pw)) s++;
+  return s;
+}
+
+/* ─── Time greeting ─── */
+function getGreeting() {
+  const h = new Date().getHours();
+  if (h < 5)  return { text: "Burning the midnight oil? 🌙", sub: "Late-night learning hits different." };
+  if (h < 12) return { text: "Good Morning! ☀️", sub: "A fresh day to learn something new." };
+  if (h < 17) return { text: "Good Afternoon! 🌤️", sub: "Keep the momentum going." };
+  if (h < 21) return { text: "Good Evening! 🌅", sub: "Wind down with some study." };
+  return { text: "Night Owl Mode! 🦉", sub: "The quiet hours are best for focus." };
+}
+
+/* ─── Ink splash colors ─── */
+const SPLASH_COLORS = [
+  "rgba(167,139,250,0.6)", "rgba(56,178,172,0.5)", "rgba(129,140,248,0.5)",
+  "rgba(246,173,85,0.5)", "rgba(107,70,193,0.5)", "rgba(72,187,120,0.45)",
+];
 
 /* ─── Study Owl ─── */
 function StudyOwl({ isPasswordFocused }: { isPasswordFocused: boolean }) {
@@ -14,8 +47,6 @@ function StudyOwl({ isPasswordFocused }: { isPasswordFocused: boolean }) {
     const handleMouseMove = (e: MouseEvent) => {
       if (isPasswordFocused || !owlRef.current) return;
       cancelAnimationFrame(animationFrameId);
-      
-      // Use requestAnimationFrame to ensure smooth 60fps tracking without blocking main thread
       animationFrameId = requestAnimationFrame(() => {
         if (!owlRef.current) return;
         const rect = owlRef.current.getBoundingClientRect();
@@ -62,6 +93,26 @@ function StudyOwl({ isPasswordFocused }: { isPasswordFocused: boolean }) {
   );
 }
 
+/* ─── Animated counter ─── */
+function AnimCounter({ target, suffix = "" }: { target: number; suffix?: string }) {
+  const [count, setCount] = useState(0);
+  const started = useRef(false);
+  useEffect(() => {
+    if (started.current) return;
+    started.current = true;
+    const dur = 1600;
+    const s = performance.now();
+    const step = (now: number) => {
+      const p = Math.min((now - s) / dur, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setCount(Math.floor(eased * target));
+      if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }, [target]);
+  return <>{count.toLocaleString()}{suffix}</>;
+}
+
 export default function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -71,9 +122,60 @@ export default function AuthPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
-  
+
+  /* Typewriter */
+  const [twWordIdx, setTwWordIdx] = useState(0);
+  const [twCharIdx, setTwCharIdx] = useState(0);
+  const [twDeleting, setTwDeleting] = useState(false);
+
+  /* Greeting */
+  const [greeting] = useState(getGreeting);
+
+  const pwStrength = calcPwStrength(password);
+
+  /* Ink splash */
+  const bgRef = useRef<HTMLDivElement>(null);
+
   const router = useRouter();
   const supabase = createClient();
+
+  /* Typewriter effect */
+  useEffect(() => {
+    const word = TW_WORDS[twWordIdx];
+    let timeout: ReturnType<typeof setTimeout>;
+    if (!twDeleting && twCharIdx < word.length) {
+      timeout = setTimeout(() => setTwCharIdx(c => c + 1), 80);
+    } else if (!twDeleting && twCharIdx === word.length) {
+      timeout = setTimeout(() => setTwDeleting(true), 2200);
+    } else if (twDeleting && twCharIdx > 0) {
+      timeout = setTimeout(() => setTwCharIdx(c => c - 1), 40);
+    } else if (twDeleting && twCharIdx === 0) {
+      setTwDeleting(false);
+      setTwWordIdx(i => (i + 1) % TW_WORDS.length);
+    }
+    return () => clearTimeout(timeout);
+  }, [twCharIdx, twDeleting, twWordIdx]);
+
+  /* Ink splash on background click */
+  const handleBgClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const t = e.target as HTMLElement;
+    if (t.closest("form") || t.closest("button") || t.closest("input") || t.closest(".auth-panel")) return;
+    if (!bgRef.current) return;
+    const rect = bgRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    for (let i = 0; i < 6; i++) {
+      const dot = document.createElement("span");
+      dot.className = "auth-ink";
+      const color = SPLASH_COLORS[Math.floor(Math.random() * SPLASH_COLORS.length)];
+      const size = 6 + Math.random() * 10;
+      const dx = (Math.random() - 0.5) * 100;
+      const dy = -(20 + Math.random() * 60);
+      dot.style.cssText = `left:${x}px;top:${y}px;width:${size}px;height:${size}px;background:${color};--dx:${dx}px;--dy:${dy}px;`;
+      bgRef.current.appendChild(dot);
+      setTimeout(() => dot.remove(), 800);
+    }
+  }, []);
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -114,7 +216,7 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen w-full relative overflow-hidden">
+    <div className="min-h-screen w-full relative overflow-hidden" ref={bgRef} onClick={handleBgClick}>
       <style jsx>{`
         @keyframes float { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-15px) scale(1.02); } }
         @keyframes pulse { 0%, 100% { opacity: var(--lo, 0.15); } 50% { opacity: var(--hi, 0.8); } }
@@ -131,12 +233,28 @@ export default function AuthPage() {
           50% { transform: translateX(10%) skewX(5deg); }
           100% { transform: translateX(-30%) skewX(-5deg); }
         }
-        @keyframes orbitRing {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
+        @keyframes orbitRing { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        @keyframes pw-pop { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
+        @keyframes counter-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes shimmer-btn {
+          0% { left: -100%; }
+          50% { left: 150%; }
+          100% { left: 150%; }
         }
-        
-        /* Interactive CSS-only hover effect */
+        @keyframes ink-float {
+          0% { opacity: 1; transform: translate(0, 0) scale(1); }
+          100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0.15); }
+        }
+
+        .auth-ink {
+          position: absolute;
+          border-radius: 50%;
+          pointer-events: none;
+          z-index: 50;
+          animation: ink-float 0.75s ease-out forwards;
+        }
+
         .interactive-float {
           transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
           cursor: crosshair;
@@ -147,10 +265,44 @@ export default function AuthPage() {
           z-index: 50;
         }
 
+        .typewriter-cursor {
+          font-weight: 300;
+          animation: blink 0.7s step-end infinite;
+        }
+
+        .pw-bar {
+          height: 3px;
+          flex: 1;
+          border-radius: 999px;
+          background: rgba(255,255,255,0.1);
+          transition: background 0.35s ease;
+        }
+        .pw-bar-on {
+          animation: pw-pop 0.3s ease;
+        }
+
+        .auth-shimmer-btn {
+          position: relative;
+          overflow: hidden;
+        }
+        .auth-shimmer-btn::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 40%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+          animation: shimmer-btn 3s ease-in-out infinite;
+          pointer-events: none;
+        }
+
         .a1 { animation: slideUp 0.5s ease-out forwards; }
         .a2 { animation: slideUp 0.5s ease-out 0.12s forwards; opacity: 0; }
         .a3 { animation: slideUp 0.5s ease-out 0.24s forwards; opacity: 0; }
+        .a4 { animation: counter-in 0.6s ease-out 0.5s forwards; opacity: 0; }
         .owl-bob { animation: owlBob 3s ease-in-out infinite; }
+
         @media (prefers-reduced-motion: reduce) {
           *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
         }
@@ -214,7 +366,7 @@ export default function AuthPage() {
           </div>
         </div>
 
-        {/* ── Floating Study Icons (Interactive Hover) ── */}
+        {/* ── Floating Study Icons (Interactive on hover) ── */}
         {[
           { icon: "📚", x: "55%", y: "30%", dur: 7 },
           { icon: "🔬", x: "78%", y: "65%", dur: 8.5 },
@@ -232,7 +384,7 @@ export default function AuthPage() {
           </div>
         ))}
 
-        {/* ── Floating Books (Interactive Hover) ── */}
+        {/* ── Floating Books ── */}
         {[
           { x: "52%", y: "15%", sz: 50, rot: -10, c: "#6b46c1", fd: 0 },
           { x: "74%", y: "42%", sz: 44, rot: 14, c: "#38b2ac", fd: 1.5 },
@@ -264,21 +416,37 @@ export default function AuthPage() {
       {/* ══════ AUTH CONTENT ══════ */}
       <div className="relative z-10 min-h-screen flex items-center px-8 sm:px-12 lg:px-20 xl:px-28">
         <div className="max-w-[420px] w-full">
-          <h1 className="text-[3rem] sm:text-[3.5rem] lg:text-[4rem] font-black leading-[1.1] mb-5 tracking-tight a1" style={{ fontFamily: "var(--font-outfit)" }}>
+          {/* ── Greeting pill ── */}
+          <div className="a1 mb-4">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold"
+              style={{ background: "rgba(107,70,193,0.08)", border: "1px solid rgba(107,70,193,0.15)", color: "#6b46c1" }}>
+              {greeting.text}
+            </div>
+          </div>
+
+          <h1 className="text-[3rem] sm:text-[3.5rem] lg:text-[4rem] font-black leading-[1.1] mb-1 tracking-tight a1" style={{ fontFamily: "var(--font-outfit)" }}>
             <span className="text-gray-800 block">Exploration</span>
             <span className="text-gray-800 block">Research</span>
             <span className="block" style={{ background: "linear-gradient(135deg, #6b46c1, #38b2ac)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Scaffold</span>
           </h1>
-          <p className="text-gray-500 text-sm leading-relaxed mb-7 max-w-[340px] a2">
-            Your personalized learning platform — intelligent flashcards,
-            adaptive study rooms, and dynamic progress tracking.
+
+          {/* ── Typewriter subtitle ── */}
+          <p className="text-gray-500 text-sm leading-relaxed mb-2 a2" style={{ minHeight: '1.4em' }}>
+            <span style={{ background: "linear-gradient(135deg, #6b46c1, #38b2ac)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", fontWeight: 700 }}>
+              {TW_WORDS[twWordIdx].slice(0, twCharIdx)}
+            </span>
+            <span className="typewriter-cursor" style={{ color: "#6b46c1" }}>|</span>
+          </p>
+
+          <p className="text-gray-400 text-xs leading-relaxed mb-6 max-w-[340px] a2">
+            {greeting.sub} — Intelligent flashcards, adaptive study rooms, and dynamic progress tracking await.
           </p>
 
           <div className="a3">
             <div className="flex justify-center -mb-8 relative z-20 owl-bob">
               <StudyOwl isPasswordFocused={isPasswordFocused} />
             </div>
-            <div className="rounded-2xl p-7 pt-12" style={{ background: "rgba(255,255,255,0.9)", boxShadow: "0 20px 50px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)" }}>
+            <div className="auth-panel rounded-2xl p-7 pt-12" style={{ background: "rgba(255,255,255,0.9)", boxShadow: "0 20px 50px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)" }}>
               <h2 className="text-lg font-extrabold text-gray-800 mb-1 text-center">{isLogin ? "Welcome Back" : "Create Account"}</h2>
               <p className="text-gray-400 text-xs font-medium mb-5 text-center">{isLogin ? "The owl is watching you type... 👀" : "Register to start your journey!"}</p>
 
@@ -301,7 +469,7 @@ export default function AuthPage() {
               </div>
 
               {!isLogin && (
-                <div className="flex gap-2 mb-3">
+                <div className="flex gap-2 mb-3" style={{ animation: "slideUp 0.3s ease-out" }}>
                   <div className="flex-1">
                     <label className="block text-[10px] font-bold text-gray-400 mb-1 uppercase tracking-wider">First Name</label>
                     <input type="text" required={!isLogin} value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="John"
@@ -327,8 +495,24 @@ export default function AuthPage() {
                     onFocus={() => setIsPasswordFocused(true)} onBlur={() => setIsPasswordFocused(false)}
                     className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-800 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-400 transition-colors placeholder:text-gray-300" />
                 </div>
+
+                {/* Password strength meter */}
+                {password.length > 0 && (
+                  <div className="flex items-center gap-2 -mt-1" style={{ animation: "slideUp 0.25s ease-out" }}>
+                    <div className="flex gap-1 flex-1">
+                      {[1,2,3,4,5].map(lvl => (
+                        <div key={lvl} className={`pw-bar ${pwStrength >= lvl ? 'pw-bar-on' : ''}`}
+                          style={{ background: pwStrength >= lvl ? PW_COLORS[pwStrength] : undefined }} />
+                      ))}
+                    </div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: PW_COLORS[pwStrength], minWidth: 65, textAlign: "right" }}>
+                      {PW_LABELS[pwStrength]}
+                    </span>
+                  </div>
+                )}
+
                 <button type="submit" disabled={loading}
-                  className="w-full mt-1 py-2.5 rounded-xl text-white font-bold text-sm disabled:opacity-50 hover:shadow-lg hover:scale-[1.01] active:scale-[0.99] transition-transform"
+                  className="auth-shimmer-btn w-full mt-1 py-2.5 rounded-xl text-white font-bold text-sm disabled:opacity-50 hover:shadow-lg hover:scale-[1.01] active:scale-[0.99] transition-transform"
                   style={{ background: "linear-gradient(135deg, #6b46c1, #805ad5)", boxShadow: "0 6px 20px rgba(107,70,193,0.3)" }}>
                   {loading ? "Processing..." : isLogin ? "Sign In" : "Register Now"}
                 </button>
@@ -339,6 +523,9 @@ export default function AuthPage() {
                 <button onClick={() => setIsLogin(!isLogin)} className="text-purple-600 font-extrabold hover:underline">{isLogin ? "Register here" : "Sign in here"}</button>
               </p>
             </div>
+
+
+
           </div>
         </div>
       </div>
