@@ -257,13 +257,15 @@ export default function DashboardLayout({
               450
             </div>
             
-            <ThemeToggle />
-            
-            <AvatarPicker 
-              initialPic={sessionUser?.user_metadata?.profilePic}
-              initialFrame={sessionUser?.user_metadata?.profileFrame}
-              initials={profile?.qualification ? profile.qualification.charAt(0) : "SR"} 
-            />
+            {/* Right side items */}
+            <div className="flex items-center gap-4 border-l border-clay-border pl-6 ml-2">
+              <ThemeToggle />
+              <AvatarPicker 
+                initialPic={sessionUser?.user_metadata?.profilePic}
+                initialFrame={sessionUser?.user_metadata?.profileFrame}
+                initials={profile?.qualification ? profile.qualification.charAt(0) : "SR"} 
+              />
+            </div>
           </div>
         </header>
 

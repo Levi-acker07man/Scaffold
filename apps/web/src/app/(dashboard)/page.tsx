@@ -231,7 +231,7 @@ export default function DashboardPage() {
           <button
             type="submit"
             disabled={!newTaskLabel.trim()}
-            className="bg-accent-base text-white px-5 py-3 rounded-xl font-bold text-sm hover:opacity-90 disabled:opacity-50 transition-all shadow-sm flex items-center gap-2"
+            className="cta-button !px-5 !py-3 !rounded-xl !text-sm flex items-center gap-2"
           >
             <span>Add</span>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

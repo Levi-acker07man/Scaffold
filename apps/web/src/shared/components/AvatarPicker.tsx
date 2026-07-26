@@ -5,10 +5,18 @@ import { createClient } from "@/utils/supabase/client"
 import { motion, AnimatePresence } from "framer-motion"
 import { AVAILABLE_PROFILES, AVAILABLE_FRAMES } from "@/shared/data/profileAssets"
 import { createPortal } from "react-dom"
+import { useBackground } from "@/shared/context/BackgroundContext"
+import { useTheme } from "next-themes"
 
 export function AvatarPicker({ initialPic, initialFrame, initials }: { initialPic?: string, initialFrame?: string, initials: string }) {
   const [isOpen, setIsOpen] = React.useState(false)
-  const [view, setView] = React.useState<'menu' | 'customize'>('menu')
+  const [view, setView] = React.useState<'menu' | 'customize' | 'theme'>('menu')
+  
+  const { background, setBackground } = useBackground()
+  const { theme, setTheme } = useTheme()
+  const [themeTab, setThemeTab] = React.useState<'static' | 'live'>('static')
+  const STATIC_BACKGROUNDS = ["/Fantasy-Autumn.png", "/Fantasy-Lake1.png", "/Minimal_Squares.png", "/auth-bg.png", "/isometric-study.png"]
+  const LIVE_BACKGROUNDS = ["live-aurora", "live-nebula"]
   
   const [profilePic, setProfilePic] = React.useState(initialPic || 'badge_center_silver.png')
   const [profileFrame, setProfileFrame] = React.useState(initialFrame || 'none')
@@ -105,6 +113,13 @@ export function AvatarPicker({ initialPic, initialFrame, initials }: { initialPi
                 Change Look
               </button>
               <button 
+                onClick={() => setView('theme')}
+                className="w-full text-left px-4 py-3 rounded-xl bg-transparent border border-transparent hover:border-clay-border hover:bg-black/5 dark:hover:bg-white/5 transition-all font-bold text-text flex items-center gap-3"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+                Theme
+              </button>
+              <button 
                 onClick={handleLogout}
                 className="w-full text-left px-4 py-3 rounded-xl bg-transparent border border-transparent hover:border-red-500/30 hover:bg-red-500/10 transition-all font-bold text-red-500 flex items-center gap-3"
               >
@@ -112,7 +127,7 @@ export function AvatarPicker({ initialPic, initialFrame, initials }: { initialPi
                 Log out
               </button>
             </div>
-          ) : (
+          ) : view === 'customize' ? (
             <div>
               <div className="mb-4">
                 <h3 className="text-text text-sm font-semibold mb-2 uppercase tracking-wider">Profile Picture</h3>
@@ -168,7 +183,46 @@ export function AvatarPicker({ initialPic, initialFrame, initials }: { initialPi
                 </button>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="flex-1 py-2 bg-accent-base hover:opacity-90 text-white rounded-lg font-bold transition-colors shadow-lg"
+                  className="cta-button flex-1 !py-2 !rounded-lg !text-sm"
+                >
+                  Done
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div>
+              <div className="flex items-center justify-between mb-4 bg-black/5 dark:bg-white/5 p-1 rounded-lg">
+                <button onClick={() => setThemeTab('static')} className={`flex-1 py-1.5 text-sm font-bold rounded-md transition-all ${themeTab === 'static' ? 'bg-white dark:bg-panel shadow-sm text-text' : 'text-text-dim'}`}>Static</button>
+                <button onClick={() => setThemeTab('live')} className={`flex-1 py-1.5 text-sm font-bold rounded-md transition-all ${themeTab === 'live' ? 'bg-white dark:bg-panel shadow-sm text-text' : 'text-text-dim'}`}>Live</button>
+              </div>
+              
+              <div className="flex flex-col gap-2 mb-4 max-h-48 overflow-y-auto custom-scrollbar pr-1" data-lenis-prevent="true">
+                {themeTab === 'static' ? (
+                  STATIC_BACKGROUNDS.map((bg) => (
+                    <button key={bg} onClick={() => setBackground({ type: 'static', value: bg })} className={`w-full h-20 flex-shrink-0 rounded-xl overflow-hidden border-2 transition-all ${background.value === bg ? 'border-accent-base' : 'border-transparent hover:border-clay-border'}`}>
+                      <img src={bg} alt="Background" className="w-full h-full object-cover" />
+                    </button>
+                  ))
+                ) : (
+                  LIVE_BACKGROUNDS.map((bg) => (
+                    <button key={bg} onClick={() => setBackground({ type: 'live', value: bg })} className={`w-full h-20 flex-shrink-0 rounded-xl overflow-hidden border-2 transition-all relative ${background.value === bg ? 'border-accent-base' : 'border-transparent hover:border-clay-border'}`}>
+                      <div className={`absolute inset-0 ${bg}`} />
+                      <span className="absolute bottom-1 left-2 text-[10px] font-bold text-white z-10 drop-shadow-md capitalize">{bg.replace('live-', '')}</span>
+                    </button>
+                  ))
+                )}
+              </div>
+
+              <div className="flex gap-2 mt-6">
+                <button
+                  onClick={() => setView('menu')}
+                  className="w-1/3 py-2 border border-clay-border hover:bg-black/5 dark:hover:bg-white/5 text-text rounded-lg font-bold transition-colors"
+                >
+                  Back
+                </button>
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="cta-button flex-1 !py-2 !rounded-lg !text-sm"
                 >
                   Done
                 </button>

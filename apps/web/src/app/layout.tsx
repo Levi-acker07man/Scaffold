@@ -4,6 +4,8 @@ import "./globals.css";
 import { LenisProvider } from "@/shared/components/LenisProvider";
 import { AmbientBackground } from "@/shared/components/AmbientBackground";
 import { ThemeProvider } from "@/shared/components/ThemeProvider";
+import { BackgroundProvider } from "@/shared/context/BackgroundContext";
+
 
 
 const inter = Inter({ subsets: ["latin"] });
@@ -27,13 +29,16 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <AmbientBackground />
-          <LenisProvider>
-            <div className="relative z-10">
-              {children}
-            </div>
-          </LenisProvider>
+          <BackgroundProvider>
+            <AmbientBackground />
+            <LenisProvider>
+              <div className="relative z-10">
+                {children}
+              </div>
+            </LenisProvider>
+          </BackgroundProvider>
         </ThemeProvider>
+
       </body>
     </html>
 
