@@ -195,6 +195,7 @@ export default function DashboardPage() {
       }
 
       setLoading(false);
+      syncHeatmapDate(loadedTasks, session?.user || null);
     };
 
     fetchTasks();
@@ -208,32 +209,49 @@ export default function DashboardPage() {
     const allDone =
       todayTasks.length > 0 && todayTasks.every((t) => t.done);
     const doneCount = todayTasks.filter((t) => t.done).length;
-    const storageKey = `scaffold_heatmap_v2_${currentUser?.id || "default"}`;
-    try {
-      const existing = localStorage.getItem(storageKey);
-      const map = existing ? JSON.parse(existing) : {};
 
-      if (allDone) {
-        map[todayStr] = {
-          date: todayStr,
-          count: Math.max(doneCount, 3),
-          completed: true,
-        };
-      } else {
-        delete map[todayStr];
+    const updateKey = (key: string) => {
+      try {
+        const existing = localStorage.getItem(key);
+        const map = existing ? JSON.parse(existing) : {};
+
+        if (allDone) {
+          map[todayStr] = {
+            date: todayStr,
+            count: Math.max(doneCount, 3),
+            completed: true,
+          };
+        } else {
+          delete map[todayStr];
+        }
+        localStorage.setItem(key, JSON.stringify(map));
+        return map;
+      } catch (e) {
+        console.error("Error syncing heatmap date:", e);
+        return null;
       }
-      localStorage.setItem(storageKey, JSON.stringify(map));
+    };
 
-      if (currentUser?.id) {
+    const defaultMap = updateKey("scaffold_heatmap_v2_default");
+    let userMap = defaultMap;
+    if (currentUser?.id) {
+      userMap = updateKey(`scaffold_heatmap_v2_${currentUser.id}`) || defaultMap;
+      try {
         supabase.auth.updateUser({
           data: {
-            heatmap_activity_v2: map,
+            heatmap_activity_v2: userMap,
           },
         });
-      }
-    } catch (e) {
-      console.error("Error syncing heatmap date:", e);
+      } catch (e) {}
     }
+
+    try {
+      window.dispatchEvent(
+        new CustomEvent("scaffold_heatmap_updated", {
+          detail: { map: userMap || defaultMap, todayStr },
+        })
+      );
+    } catch (e) {}
   };
 
   const handleToggleTask = async (id: string, currentDone: boolean) => {

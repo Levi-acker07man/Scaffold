@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { createClient } from "@/utils/supabase/client";
 
 interface Task {
@@ -10,6 +10,7 @@ interface Task {
   coins: number;
   done: boolean;
   created_at?: string;
+  date?: string;
 }
 
 interface DayActivity {
@@ -18,6 +19,13 @@ interface DayActivity {
   completed: boolean;
 }
 
+const formatLocalDate = (d: Date) => {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
 export default function HeatmapPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [activityMap, setActivityMap] = useState<Record<string, DayActivity>>({});
@@ -25,86 +33,111 @@ export default function HeatmapPage() {
   const [user, setUser] = useState<any>(null);
 
   const supabase = useMemo(() => createClient(), []);
-  const todayStr = useMemo(() => new Date().toISOString().split("T")[0], []);
+  const todayStr = useMemo(() => formatLocalDate(new Date()), []);
 
-  // Use a v2 storage key so any old random/demo data from previous tests is ignored!
-  const getStorageKey = (userId?: string) => `scaffold_heatmap_v2_${userId || "default"}`;
+  // Fetch real tasks and real heatmap activity on mount or event
+  const fetchAllData = useCallback(async () => {
+    setLoading(true);
+    const { data: { session } } = await supabase.auth.getSession();
 
-  // Fetch real tasks and real heatmap activity on mount
-  useEffect(() => {
-    const fetchAllData = async () => {
-      setLoading(true);
-      const { data: { session } } = await supabase.auth.getSession();
+    let mergedMap: Record<string, DayActivity> = {};
 
-      let mergedMap: Record<string, DayActivity> = {};
-      const storageKey = getStorageKey(session?.user?.id);
+    // 1. Load from v2 localStorage (both default and user-specific keys)
+    try {
+      const defaultLocal = localStorage.getItem("scaffold_heatmap_v2_default");
+      if (defaultLocal) {
+        mergedMap = { ...mergedMap, ...JSON.parse(defaultLocal) };
+      }
+      if (session?.user?.id) {
+        const userLocal = localStorage.getItem(`scaffold_heatmap_v2_${session.user.id}`);
+        if (userLocal) {
+          mergedMap = { ...mergedMap, ...JSON.parse(userLocal) };
+        }
+      }
+    } catch (e) {
+      console.error("Error reading localStorage:", e);
+    }
 
-      // 1. Load from v2 localStorage (completely clean of old demo data)
+    // 2. Load real activity from Supabase user metadata
+    if (session?.user) {
+      setUser(session.user);
       try {
-        const local = localStorage.getItem(storageKey);
-        if (local) {
-          mergedMap = JSON.parse(local);
+        const { data: userData } = await supabase.auth.getUser();
+        const metaMap = userData.user?.user_metadata?.heatmap_activity_v2;
+        if (metaMap && typeof metaMap === "object") {
+          mergedMap = { ...mergedMap, ...metaMap };
         }
       } catch (e) {
-        console.error("Error reading localStorage:", e);
+        console.error("Error loading user metadata:", e);
       }
+    }
 
-      // 2. Load real activity from Supabase user metadata
-      if (session?.user) {
-        setUser(session.user);
-        try {
-          const { data: userData } = await supabase.auth.getUser();
-          const metaMap = userData.user?.user_metadata?.heatmap_activity_v2;
-          if (metaMap && typeof metaMap === "object") {
-            mergedMap = { ...mergedMap, ...metaMap };
-          }
-        } catch (e) {
-          console.error("Error loading user metadata:", e);
-        }
-
-        // 3. Fetch user tasks from Supabase database or fallback to localStorage
-        let allTasks: Task[] = [];
-        try {
-          const localTasksStr = localStorage.getItem("scaffold_user_tasks");
-          if (localTasksStr) {
-            allTasks = JSON.parse(localTasksStr);
-          }
-        } catch (e) { }
-
-        const { data: dbTasks } = await supabase
-          .from("tasks")
-          .select("*")
-          .eq("user_id", session.user.id)
-          .order("created_at", { ascending: true });
-
-        if (dbTasks && dbTasks.length > 0) {
-          allTasks = dbTasks;
-        }
-
-        setTasks(allTasks);
-
-        // Turn today permanently green when all items in the to-do list are checked completed
-        const allDone = allTasks.length > 0 && allTasks.every((t) => t.done);
-        const doneCount = allTasks.filter((t) => t.done).length;
-
-        if (allDone) {
-          mergedMap[todayStr] = {
-            date: todayStr,
-            count: Math.max(doneCount, 3),
-            completed: true,
-          };
-        } else {
-          delete mergedMap[todayStr];
-        }
+    // 3. Fetch user tasks from Supabase database or fallback to localStorage
+    let allTasks: Task[] = [];
+    try {
+      const localTasksStr = localStorage.getItem("scaffold_user_tasks");
+      if (localTasksStr) {
+        allTasks = JSON.parse(localTasksStr);
       }
+    } catch (e) {}
 
-      setActivityMap(mergedMap);
-      setLoading(false);
-    };
+    if (session?.user?.id) {
+      const { data: dbTasks } = await supabase
+        .from("tasks")
+        .select("*")
+        .eq("user_id", session.user.id)
+        .order("created_at", { ascending: true });
 
-    fetchAllData();
+      if (dbTasks && dbTasks.length > 0) {
+        allTasks = dbTasks;
+      }
+    }
+
+    setTasks(allTasks);
+
+    // Filter ONLY today's tasks for today's completion status
+    const todayTasks = allTasks.filter((t) => !t.date || t.date === todayStr);
+    const allDone = todayTasks.length > 0 && todayTasks.every((t) => t.done);
+    const doneCount = todayTasks.filter((t) => t.done).length;
+
+    if (allDone) {
+      mergedMap[todayStr] = {
+        date: todayStr,
+        count: Math.max(doneCount, 3),
+        completed: true,
+      };
+    } else {
+      delete mergedMap[todayStr];
+    }
+
+    // Persist updated map to localStorage
+    try {
+      localStorage.setItem("scaffold_heatmap_v2_default", JSON.stringify(mergedMap));
+      if (session?.user?.id) {
+        localStorage.setItem(`scaffold_heatmap_v2_${session.user.id}`, JSON.stringify(mergedMap));
+      }
+    } catch (e) {}
+
+    setActivityMap(mergedMap);
+    setLoading(false);
   }, [supabase, todayStr]);
 
+  useEffect(() => {
+    fetchAllData();
+
+    const handleUpdate = () => {
+      fetchAllData();
+    };
+    window.addEventListener("focus", handleUpdate);
+    window.addEventListener("storage", handleUpdate);
+    window.addEventListener("scaffold_heatmap_updated", handleUpdate);
+
+    return () => {
+      window.removeEventListener("focus", handleUpdate);
+      window.removeEventListener("storage", handleUpdate);
+      window.removeEventListener("scaffold_heatmap_updated", handleUpdate);
+    };
+  }, [fetchAllData]);
 
   // Calculate Streak Counters strictly from real activity (ZERO random numbers)
   const { currentStreak, longestStreak, totalActiveDays } = useMemo(() => {
@@ -113,23 +146,23 @@ export default function HeatmapPage() {
     let temp = 0;
 
     const now = new Date();
-    let checkDate = new Date(now);
-    let dateStr = checkDate.toISOString().split("T")[0];
+    let checkDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    let dateStr = formatLocalDate(checkDate);
 
     // Count backwards for active streak
     if (activityMap[dateStr]?.completed) {
       current++;
       checkDate.setDate(checkDate.getDate() - 1);
-      dateStr = checkDate.toISOString().split("T")[0];
+      dateStr = formatLocalDate(checkDate);
     } else {
       checkDate.setDate(checkDate.getDate() - 1);
-      dateStr = checkDate.toISOString().split("T")[0];
+      dateStr = formatLocalDate(checkDate);
     }
 
     while (activityMap[dateStr]?.completed) {
       current++;
       checkDate.setDate(checkDate.getDate() - 1);
-      dateStr = checkDate.toISOString().split("T")[0];
+      dateStr = formatLocalDate(checkDate);
     }
 
     // Longest streak across all real active dates
@@ -141,8 +174,8 @@ export default function HeatmapPage() {
       temp = 1;
       longest = 1;
       for (let i = 1; i < activeDates.length; i++) {
-        const prev = new Date(activeDates[i - 1]);
-        const curr = new Date(activeDates[i]);
+        const prev = new Date(activeDates[i - 1] + "T00:00:00");
+        const curr = new Date(activeDates[i] + "T00:00:00");
         const diffDays = Math.round((curr.getTime() - prev.getTime()) / (1000 * 3600 * 24));
         if (diffDays === 1) {
           temp++;
@@ -153,7 +186,7 @@ export default function HeatmapPage() {
       }
     }
 
-    const totalDays = Object.values(activityMap).filter((d) => d.completed || d.count > 0).length;
+    const totalDays = Object.values(activityMap).filter((d) => d && (d.completed || (d.count && d.count > 0))).length;
 
     return {
       currentStreak: Math.max(current, activityMap[todayStr]?.completed ? 1 : 0),
@@ -178,10 +211,10 @@ export default function HeatmapPage() {
     const curr = new Date(startDate);
 
     while (curr <= endDate) {
-      const ds = curr.toISOString().split("T")[0];
+      const ds = formatLocalDate(curr);
       currWeek.push({
         date: ds,
-        isFuture: curr > today,
+        isFuture: ds > todayStr,
         activity: activityMap[ds],
       });
 
@@ -200,7 +233,7 @@ export default function HeatmapPage() {
     weeksArr.forEach((w, colIdx) => {
       const firstDay = w[0]?.date;
       if (firstDay) {
-        const monthName = new Date(firstDay).toLocaleString("default", { month: "short" });
+        const monthName = new Date(firstDay + "T00:00:00").toLocaleString("default", { month: "short" });
         if (!seenMonths.has(monthName)) {
           seenMonths.add(monthName);
           labels.push({ label: monthName, colIndex: colIdx });
@@ -209,7 +242,7 @@ export default function HeatmapPage() {
     });
 
     return { weeks: weeksArr, monthLabels: labels };
-  }, [activityMap]);
+  }, [activityMap, todayStr]);
 
   // Style class for each square
   const getCellClassName = (cell: { date: string; isFuture: boolean; activity?: DayActivity }) => {
@@ -218,9 +251,10 @@ export default function HeatmapPage() {
     const isToday = cell.date === todayStr;
 
     let base = "heatmap-cell ";
-    if (act?.completed) {
-      if (act.count >= 3) base += "heatmap-cell-level-3 ";
-      else if (act.count === 2) base += "heatmap-cell-level-2 ";
+    if (act?.completed || (act?.count && act.count > 0)) {
+      const count = act?.count || 3;
+      if (count >= 3) base += "heatmap-cell-level-3 ";
+      else if (count === 2) base += "heatmap-cell-level-2 ";
       else base += "heatmap-cell-level-1 ";
     }
     if (isToday) base += "heatmap-cell-today ";
