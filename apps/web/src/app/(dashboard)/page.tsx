@@ -87,8 +87,9 @@ export default function DashboardPage() {
   );
 
   // ── TIMER STATE ──
-  const [timerSeconds, setTimerSeconds] = useState<number>(1500); // 25m default
-  const [initialSeconds, setInitialSeconds] = useState<number>(1500);
+  const [timerSeconds, setTimerSeconds] = useState<number>(1800); // 30m default
+  const [initialSeconds, setInitialSeconds] = useState<number>(1800);
+  const [timerStep, setTimerStep] = useState<number>(1800);
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [timerCompleted, setTimerCompleted] = useState<boolean>(false);
   const [liveClockStr, setLiveClockStr] = useState<string>("");
@@ -415,11 +416,11 @@ export default function DashboardPage() {
   );
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full h-full flex-1 min-h-[calc(100vh-100px)]">
+    <div className="flex flex-col lg:flex-row gap-6 w-full h-full flex-1 min-h-0">
       {/* ══════════════════════════════════════════════════
           LEFT COLUMN (7 cols): TODAY'S TARGETS (WITH CHECKBOXES)
          ══════════════════════════════════════════════════ */}
-      <section className="clay rounded-3xl p-6 lg:p-8 border border-clay-border flex flex-col lg:col-span-7 h-full min-h-[520px] shadow-sm">
+      <section className="clay rounded-3xl p-6 lg:p-8 border border-clay-border flex flex-col w-full lg:w-7/12 h-full min-h-0 shadow-sm">
         <div className="flex items-center justify-between mb-4 border-b border-black/5 pb-4">
           <div>
             <h2 className="text-2xl font-black text-text flex items-center gap-3">
@@ -450,10 +451,10 @@ export default function DashboardPage() {
         >
           <input
             type="text"
-            placeholder="✨ Add a target for today..."
+            placeholder="Add Task"
             value={newTaskLabel}
             onChange={(e) => setNewTaskLabel(e.target.value)}
-            className="flex-1 bg-white text-black dark:text-black border-2 border-clay-border hover:border-accent-border/80 rounded-2xl px-4 py-3.5 text-sm md:text-base font-medium focus:outline-none focus:border-accent-base focus:ring-4 focus:ring-accent-base/20 transition-all duration-300 placeholder:text-text-dimmer shadow-sm hover:shadow-md focus:scale-[1.01]"
+            className="flex-1 bg-input-bg text-text border-2 border-clay-border hover:border-accent-border/80 rounded-2xl px-4 py-3.5 text-sm md:text-base font-medium focus:outline-none focus:border-accent-base focus:ring-4 focus:ring-accent-base/20 transition-all duration-300 placeholder:text-text-dimmer shadow-sm hover:shadow-md focus:scale-[1.01]"
           />
           <button
             type="submit"
@@ -479,7 +480,7 @@ export default function DashboardPage() {
         </form>
 
         {/* Task List (Today) */}
-        <div className="flex flex-col gap-3.5 flex-1 overflow-y-auto pr-2 scrollbar-hide">
+        <div className="flex flex-col gap-3.5 flex-1 min-h-0 overflow-y-auto pr-2 scrollbar-hide">
           {loading ? (
             <div className="flex items-center justify-center h-full text-text-dim text-base font-medium animate-pulse">
               Loading targets...
@@ -594,7 +595,7 @@ export default function DashboardPage() {
       {/* ══════════════════════════════════════════════════
           RIGHT COLUMN (5 cols): COMPACT TIMER + EXPANDED FUTURE PLANNER
          ══════════════════════════════════════════════════ */}
-      <div className="lg:col-span-5 flex flex-col gap-5 h-full">
+      <div className="w-full lg:w-5/12 flex flex-col gap-5 h-full min-h-0">
         {/* ── UPPER HALF: COMPACT FOCUS TIMER WIDGET ── */}
         <section className="clay rounded-3xl p-5 border border-clay-border flex flex-col shrink-0 shadow-sm">
           <div className="flex items-center justify-between border-b border-black/5 pb-2.5 mb-2.5">
@@ -639,16 +640,43 @@ export default function DashboardPage() {
                 ? "Session in Progress"
                 : "Ready to Focus"}
             </span>
-            <div className="text-4xl font-black tracking-tight text-text font-mono my-0.5">
-              {formatTimerTime(timerSeconds)}
+            <div className="flex items-center w-full px-2 my-1">
+              <div className="flex-1" />
+              <div className="text-5xl font-black tracking-tight text-text font-mono shrink-0">
+                {formatTimerTime(timerSeconds)}
+              </div>
+              <div className="flex-1 flex flex-col items-end gap-1">
+                <button 
+                  onClick={() => {
+                    const next = Math.min(18000, timerSeconds + timerStep);
+                    const diff = next - timerSeconds;
+                    setTimerSeconds(next);
+                    setInitialSeconds(Math.min(18000, initialSeconds + diff));
+                  }}
+                  className="p-1.5 rounded-lg flex items-center justify-center hover:bg-black/10 dark:hover:bg-white/10 text-text-dim hover:text-text transition-colors transform hover:scale-105 active:scale-95"
+                  title="Increase timer"
+                >
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
+                </button>
+                <button 
+                  onClick={() => {
+                    const next = Math.max(60, timerSeconds - timerStep);
+                    const diff = timerSeconds - next;
+                    setTimerSeconds(next);
+                    setInitialSeconds(Math.max(60, initialSeconds - diff));
+                  }}
+                  className="p-1.5 rounded-lg flex items-center justify-center hover:bg-black/10 dark:hover:bg-white/10 text-text-dim hover:text-text transition-colors transform hover:scale-105 active:scale-95"
+                  title="Decrease timer"
+                >
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </button>
+              </div>
             </div>
 
             {/* Time Adjustment Presets */}
-            <div className="flex items-center gap-1 flex-wrap justify-center mt-2">
+            <div className="flex items-center gap-2 flex-wrap justify-center mt-3">
               {[
-                { label: "15m", secs: 900 },
-                { label: "25m", secs: 1500 },
-                { label: "45m", secs: 2700 },
+                { label: "30m", secs: 1800 },
                 { label: "60m", secs: 3600 },
               ].map((preset) => (
                 <button
@@ -658,6 +686,7 @@ export default function DashboardPage() {
                     setTimerCompleted(false);
                     setTimerSeconds(preset.secs);
                     setInitialSeconds(preset.secs);
+                    setTimerStep(preset.secs);
                   }}
                   className={`px-2 py-0.5 rounded-lg text-xs font-extrabold border transition-all ${
                     initialSeconds === preset.secs && !timerCompleted
@@ -840,8 +869,8 @@ export default function DashboardPage() {
                       onClick={() => setSelectedFutureDate(d.dateStr)}
                       className={`flex flex-col items-center justify-center min-w-[54px] py-1.5 px-2 rounded-xl border transition-all duration-200 ease-out transform hover:-translate-y-0.5 shrink-0 relative ${
                         isSelected
-                          ? "bg-gradient-to-br from-accent-base to-purple-700 text-void border-accent-base shadow-lg scale-105 ring-2 ring-accent-base/30"
-                          : "bg-input-bg text-text border-clay-border hover:border-accent-border/60 hover:bg-white hover:shadow-xs"
+                          ? "bg-gray-200 dark:bg-white text-black border-gray-300 dark:border-white shadow-md dark:shadow-[0_0_12px_rgba(255,255,255,0.5)] scale-105 ring-2 ring-gray-300/50 dark:ring-white/30"
+                          : "bg-input-bg text-text border-clay-border hover:border-accent-border/60 hover:bg-white dark:hover:bg-panel-2 hover:shadow-xs"
                       }`}
                     >
                       <span className="text-[9px] font-extrabold tracking-wider uppercase opacity-75">
@@ -889,10 +918,10 @@ export default function DashboardPage() {
             >
               <input
                 type="text"
-                placeholder={`📅 Schedule target for ${selectedDateObj?.dayName || "this day"}...`}
+                placeholder={`Add Task for ${selectedDateObj?.dayName || "this day"}`}
                 value={newFutureTaskLabel}
                 onChange={(e) => setNewFutureTaskLabel(e.target.value)}
-                className="flex-1 bg-white text-black dark:text-black border-2 border-clay-border hover:border-accent-border/80 rounded-xl px-3.5 py-2.5 text-xs md:text-sm font-medium focus:outline-none focus:border-accent-base focus:ring-4 focus:ring-accent-base/20 transition-all duration-300 placeholder:text-text-dimmer shadow-xs hover:shadow-sm focus:scale-[1.01]"
+                className="flex-1 bg-input-bg text-text border-2 border-clay-border hover:border-accent-border/80 rounded-xl px-3.5 py-2.5 text-xs md:text-sm font-medium focus:outline-none focus:border-accent-base focus:ring-4 focus:ring-accent-base/20 transition-all duration-300 placeholder:text-text-dimmer shadow-xs hover:shadow-sm focus:scale-[1.01]"
               />
               <button
                 type="submit"
@@ -918,7 +947,7 @@ export default function DashboardPage() {
             </form>
 
             {/* Future Tasks List for Selected Date */}
-            <div className="flex flex-col gap-2 flex-1 overflow-y-auto pr-1 scrollbar-hide my-1 max-h-[160px]">
+            <div className="flex flex-col gap-2 flex-1 overflow-y-auto pr-1 scrollbar-hide my-1 min-h-0">
               {futureTasksForSelectedDate.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-5 px-4 rounded-xl bg-input-bg border border-clay-border/50">
                   <p className="text-xs font-bold text-text-dim">

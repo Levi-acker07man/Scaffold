@@ -51,7 +51,7 @@
   --card-hover-bg: #f3f4f6;
 
   /* Transition */
-  --theme-transition: background .3s ease, color .3s ease, border-color .3s ease, box-shadow .3s ease, transform .2s ease;
+  --theme-transition: background .3s ease, color .3s ease, border-color .3s ease;
 }
 
 .dark {
@@ -150,27 +150,25 @@
   inset: 0;
   z-index: 1;
   background: linear-gradient(180deg,
-      rgba(249, 249, 251, 0.50) 0%,
-      rgba(249, 249, 251, 0.50) 50%,
-      rgba(249, 249, 251, 0.50) 100%);
-  backdrop-filter: blur(8px);
+      rgba(249, 249, 251, 0.85) 0%,
+      rgba(249, 249, 251, 0.85) 50%,
+      rgba(249, 249, 251, 0.85) 100%);
   pointer-events: none;
 }
 
 .dark .ambient::after {
   background: linear-gradient(180deg,
-      rgba(15, 17, 21, 0.85) 0%,
-      rgba(15, 17, 21, 0.85) 50%,
-      rgba(15, 17, 21, 0.85) 100%);
+      rgba(15, 17, 21, 0.95) 0%,
+      rgba(15, 17, 21, 0.95) 50%,
+      rgba(15, 17, 21, 0.95) 100%);
 }
 
-/* Subtle grain texture */
+/* Subtle grain texture - Disabled for performance */
 .ambient::before {
   content: '';
   position: absolute;
   inset: 0;
   z-index: 2;
-  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
   opacity: 0.15;
   pointer-events: none;
 }
@@ -213,8 +211,11 @@
   right: 0;
   height: 1px;
   background: linear-gradient(90deg, transparent, var(--clay-shimmer), transparent);
-  animation: shimmer 8s ease-in-out infinite;
   pointer-events: none;
+}
+
+.clay:hover::before {
+  animation: shimmer 2s ease-in-out 1;
 }
 
 /* ── Nav pill (TopNav buttons/badges) ── */
@@ -981,26 +982,30 @@
    ═══════════════════════════════════════════════════ */
 .live-aurora {
   background: linear-gradient(45deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
-  background-size: 400% 400%;
-  animation: liveGradient 15s ease infinite;
+  background-size: 200% 200%;
+  animation: liveGradient 30s ease infinite;
+  will-change: background-position;
 }
 
 .dark .live-aurora {
   background: linear-gradient(45deg, #1f005c, #5b0060, #870160, #ac255e, #ca485c, #e16b5c, #f39060, #ffb56b);
-  background-size: 400% 400%;
-  animation: liveGradient 15s ease infinite;
+  background-size: 200% 200%;
+  animation: liveGradient 30s ease infinite;
+  will-change: background-position;
 }
 
 .live-nebula {
   background: linear-gradient(-45deg, #00c6ff, #0072ff);
-  background-size: 400% 400%;
-  animation: liveGradient 15s ease infinite;
+  background-size: 200% 200%;
+  animation: liveGradient 30s ease infinite;
+  will-change: background-position;
 }
 
 .dark .live-nebula {
   background: linear-gradient(-45deg, #020024, #090979, #00d4ff);
-  background-size: 400% 400%;
-  animation: liveGradient 15s ease infinite;
+  background-size: 200% 200%;
+  animation: liveGradient 30s ease infinite;
+  will-change: background-position;
 }
 
 @keyframes liveGradient {

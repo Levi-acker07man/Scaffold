@@ -9,12 +9,7 @@ export function LenisProvider({ children }: { children: React.ReactNode }) {
       autoRaf: true,
     });
 
-    function raf(time: number) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
-    }
-
-    requestAnimationFrame(raf);
+    // Lenis autoRaf handles the requestAnimationFrame loop automatically
 
     return () => {
       lenis.destroy();

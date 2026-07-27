@@ -79,7 +79,7 @@ export default function HeatmapPage() {
       if (localTasksStr) {
         allTasks = JSON.parse(localTasksStr);
       }
-    } catch (e) {}
+    } catch (e) { }
 
     if (session?.user?.id) {
       const { data: dbTasks } = await supabase
@@ -116,7 +116,7 @@ export default function HeatmapPage() {
       if (session?.user?.id) {
         localStorage.setItem(`scaffold_heatmap_v2_${session.user.id}`, JSON.stringify(mergedMap));
       }
-    } catch (e) {}
+    } catch (e) { }
 
     setActivityMap(mergedMap);
     setLoading(false);
@@ -338,8 +338,8 @@ export default function HeatmapPage() {
                       <div
                         key={dIdx}
                         title={`${cell.date}: ${cell.activity?.completed
-                            ? "Active Day • Completed"
-                            : "No activity recorded"
+                          ? "Active Day • Completed"
+                          : "No activity recorded"
                           }`}
                         className={`w-4 h-4 sm:w-[18px] sm:h-[18px] rounded-[4px] transition-all duration-150 ${getCellClassName(cell)}`}
                       />
@@ -366,28 +366,18 @@ export default function HeatmapPage() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full">
         {/* Current Streak */}
         <div
-          className="rounded-3xl p-8 flex flex-col items-center justify-center text-center transition-all border relative overflow-hidden"
-          style={{
-            background: "rgba(34, 197, 94, 0.08)",
-            borderColor: "rgba(34, 197, 94, 0.3)",
-            boxShadow:
-              "0 4px 16px rgba(34, 197, 94, 0.08), inset 0 2px 2px rgba(255, 255, 255, 0.7)",
-          }}
+          className="rounded-3xl p-8 flex flex-col items-center justify-center text-center transition-all border relative overflow-hidden bg-white dark:bg-panel border-clay-border shadow-[0_0_15px_rgba(0,0,0,0.1)] dark:shadow-[0_0_15px_rgba(255,255,255,0.15)] hover:shadow-lg dark:hover:shadow-[0_0_20px_rgba(255,255,255,0.25)]"
         >
           <div
-            className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
-            style={{
-              background: "rgba(34, 197, 94, 0.15)",
-              border: "2px solid rgba(34, 197, 94, 0.4)",
-              boxShadow: "0 0 16px rgba(34, 197, 94, 0.3)",
-            }}
+            className="w-16 h-16 rounded-full flex items-center justify-center mb-4 bg-gray-100 dark:bg-panel-2 border-2 border-gray-200 dark:border-gray-700 shadow-sm"
           >
             <svg
               width="32"
               height="32"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="#22c55e"
+              stroke="currentColor"
+              className="text-text"
               strokeWidth="2.5"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -398,8 +388,8 @@ export default function HeatmapPage() {
           <span className="text-4xl font-black text-text tracking-tight">
             {currentStreak} Days
           </span>
-          <span className="text-xs font-black text-emerald-600 uppercase tracking-widest mt-2">
-            Current Streak 🔥
+          <span className="text-xs font-black text-text uppercase tracking-widest mt-2">
+            Current Streak
           </span>
           <span className="text-xs font-semibold text-text-dim mt-2">
             Consecutive days of recorded activity
@@ -408,28 +398,18 @@ export default function HeatmapPage() {
 
         {/* Longest Streak */}
         <div
-          className="rounded-3xl p-8 flex flex-col items-center justify-center text-center transition-all border relative overflow-hidden"
-          style={{
-            background: "rgba(251, 146, 60, 0.06)",
-            borderColor: "rgba(251, 146, 60, 0.25)",
-            boxShadow:
-              "0 4px 16px rgba(251, 146, 60, 0.06), inset 0 2px 2px rgba(255, 255, 255, 0.7)",
-          }}
+          className="rounded-3xl p-8 flex flex-col items-center justify-center text-center transition-all border relative overflow-hidden bg-white dark:bg-panel border-clay-border shadow-[0_0_15px_rgba(0,0,0,0.1)] dark:shadow-[0_0_15px_rgba(255,255,255,0.15)] hover:shadow-lg dark:hover:shadow-[0_0_20px_rgba(255,255,255,0.25)]"
         >
           <div
-            className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
-            style={{
-              background: "rgba(251, 146, 60, 0.15)",
-              border: "2px solid rgba(251, 146, 60, 0.35)",
-              boxShadow: "0 0 16px rgba(251, 146, 60, 0.25)",
-            }}
+            className="w-16 h-16 rounded-full flex items-center justify-center mb-4 bg-gray-100 dark:bg-panel-2 border-2 border-gray-200 dark:border-gray-700 shadow-sm"
           >
             <svg
               width="32"
               height="32"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="#fb923c"
+              stroke="currentColor"
+              className="text-text"
               strokeWidth="2.5"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -440,8 +420,8 @@ export default function HeatmapPage() {
           <span className="text-4xl font-black text-text tracking-tight">
             {longestStreak} Days
           </span>
-          <span className="text-xs font-black text-orange-500 uppercase tracking-widest mt-2">
-            Longest Streak 🏆
+          <span className="text-xs font-black text-text uppercase tracking-widest mt-2">
+            Longest Streak
           </span>
           <span className="text-xs font-semibold text-text-dim mt-2">
             Your all-time best consistency record
@@ -450,28 +430,18 @@ export default function HeatmapPage() {
 
         {/* Total Active Days */}
         <div
-          className="rounded-3xl p-8 flex flex-col items-center justify-center text-center transition-all border relative overflow-hidden"
-          style={{
-            background: "rgba(99, 102, 241, 0.06)",
-            borderColor: "rgba(99, 102, 241, 0.25)",
-            boxShadow:
-              "0 4px 16px rgba(99, 102, 241, 0.06), inset 0 2px 2px rgba(255, 255, 255, 0.7)",
-          }}
+          className="rounded-3xl p-8 flex flex-col items-center justify-center text-center transition-all border relative overflow-hidden bg-white dark:bg-panel border-clay-border shadow-[0_0_15px_rgba(0,0,0,0.1)] dark:shadow-[0_0_15px_rgba(255,255,255,0.15)] hover:shadow-lg dark:hover:shadow-[0_0_20px_rgba(255,255,255,0.25)]"
         >
           <div
-            className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
-            style={{
-              background: "rgba(99, 102, 241, 0.15)",
-              border: "2px solid rgba(99, 102, 241, 0.35)",
-              boxShadow: "0 0 16px rgba(99, 102, 241, 0.25)",
-            }}
+            className="w-16 h-16 rounded-full flex items-center justify-center mb-4 bg-gray-100 dark:bg-panel-2 border-2 border-gray-200 dark:border-gray-700 shadow-sm"
           >
             <svg
               width="32"
               height="32"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="#6366f1"
+              stroke="currentColor"
+              className="text-text"
               strokeWidth="2.5"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -485,8 +455,8 @@ export default function HeatmapPage() {
           <span className="text-4xl font-black text-text tracking-tight">
             {totalActiveDays} Days
           </span>
-          <span className="text-xs font-black text-indigo-600 uppercase tracking-widest mt-2">
-            Total Active Days 🗓️
+          <span className="text-xs font-black text-text uppercase tracking-widest mt-2">
+            Total Active Days
           </span>
           <span className="text-xs font-semibold text-text-dim mt-2">
             Total days recorded on your heatmap
