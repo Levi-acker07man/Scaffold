@@ -69,7 +69,7 @@ export default function HeatmapPage() {
           if (localTasksStr) {
             allTasks = JSON.parse(localTasksStr);
           }
-        } catch (e) {}
+        } catch (e) { }
 
         const { data: dbTasks } = await supabase
           .from("tasks")
@@ -119,7 +119,7 @@ export default function HeatmapPage() {
             heatmap_activity_v2: newMap,
           },
         });
-      } catch (e) {}
+      } catch (e) { }
     }
   };
 
@@ -342,11 +342,10 @@ export default function HeatmapPage() {
                       <div
                         key={dIdx}
                         onClick={() => handleCellClick(cell.date, cell.isFuture)}
-                        title={`${cell.date}: ${
-                          cell.activity?.completed
+                        title={`${cell.date}: ${cell.activity?.completed
                             ? "Active Day • Completed"
                             : "No activity recorded"
-                        }`}
+                          }`}
                         className={`w-4 h-4 sm:w-[18px] sm:h-[18px] rounded-[4px] transition-all duration-150 ${getCellClassName(cell)}`}
                       />
                     ))}
