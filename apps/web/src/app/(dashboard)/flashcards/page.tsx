@@ -82,11 +82,11 @@ export default function FlashcardsPage() {
           </button>
 
           <div className="flex-1 flex flex-col">
-            <label className="text-[10px] uppercase tracking-wider font-bold text-black/40 mb-1">
+            <label className="text-[10px] uppercase tracking-wider font-bold text-black/60 dark:text-black/60 mb-1">
               Front (Term)
             </label>
             <textarea
-              className={`w-full bg-transparent border-none outline-none resize-none font-medium placeholder-black/30 ${
+              className={`w-full bg-transparent border-none outline-none resize-none font-medium text-black dark:text-black placeholder-black/40 dark:placeholder-black/40 ${
                 type === "neuro" ? "text-lg leading-relaxed" : "text-base"
               }`}
               placeholder="Enter term..."
@@ -99,11 +99,11 @@ export default function FlashcardsPage() {
           <div className="h-px w-full bg-black/10 my-2"></div>
           
           <div className="flex-1 flex flex-col">
-            <label className="text-[10px] uppercase tracking-wider font-bold text-black/40 mb-1">
+            <label className="text-[10px] uppercase tracking-wider font-bold text-black/60 dark:text-black/60 mb-1">
               Back (Definition)
             </label>
             <textarea
-              className={`w-full bg-transparent border-none outline-none resize-none placeholder-black/30 ${
+              className={`w-full bg-transparent border-none outline-none resize-none text-black dark:text-black placeholder-black/40 dark:placeholder-black/40 ${
                 type === "neuro" ? "text-base leading-loose" : "text-sm"
               }`}
               placeholder="Enter definition..."
@@ -140,7 +140,7 @@ export default function FlashcardsPage() {
           onClick={() => setActiveTab("typical")}
           className={`px-5 py-2.5 rounded-lg font-semibold transition-all ${
             activeTab === "typical"
-              ? "bg-white text-accent-base shadow-sm border border-black/5"
+              ? "bg-white dark:bg-panel-2 text-gray-900 dark:text-white shadow-sm border border-black/5 dark:border-white/10"
               : "text-text-dim hover:text-text"
           }`}
         >
@@ -150,7 +150,7 @@ export default function FlashcardsPage() {
           onClick={() => setActiveTab("neuro")}
           className={`px-5 py-2.5 rounded-lg font-semibold transition-all ${
             activeTab === "neuro"
-              ? "bg-white text-accent-base shadow-sm border border-black/5"
+              ? "bg-white dark:bg-panel-2 text-gray-900 dark:text-white shadow-sm border border-black/5 dark:border-white/10"
               : "text-text-dim hover:text-text"
           }`}
         >

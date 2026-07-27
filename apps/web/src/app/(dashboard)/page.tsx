@@ -213,18 +213,14 @@ export default function DashboardPage() {
       const existing = localStorage.getItem(storageKey);
       const map = existing ? JSON.parse(existing) : {};
 
-      if (allDone || doneCount > 0) {
+      if (allDone) {
         map[todayStr] = {
           date: todayStr,
-          count: allDone ? Math.max(doneCount, 3) : doneCount,
-          completed: allDone,
+          count: Math.max(doneCount, 3),
+          completed: true,
         };
       } else {
-        map[todayStr] = {
-          date: todayStr,
-          count: 0,
-          completed: false,
-        };
+        delete map[todayStr];
       }
       localStorage.setItem(storageKey, JSON.stringify(map));
 
@@ -439,7 +435,7 @@ export default function DashboardPage() {
             placeholder="✨ Add a target for today..."
             value={newTaskLabel}
             onChange={(e) => setNewTaskLabel(e.target.value)}
-            className="flex-1 bg-white border-2 border-clay-border hover:border-accent-border/80 rounded-2xl px-4 py-3.5 text-sm md:text-base font-medium focus:outline-none focus:border-accent-base focus:ring-4 focus:ring-accent-base/20 transition-all duration-300 placeholder:text-text-dimmer shadow-sm hover:shadow-md focus:scale-[1.01]"
+            className="flex-1 bg-white text-black dark:text-black border-2 border-clay-border hover:border-accent-border/80 rounded-2xl px-4 py-3.5 text-sm md:text-base font-medium focus:outline-none focus:border-accent-base focus:ring-4 focus:ring-accent-base/20 transition-all duration-300 placeholder:text-text-dimmer shadow-sm hover:shadow-md focus:scale-[1.01]"
           />
           <button
             type="submit"
@@ -502,7 +498,7 @@ export default function DashboardPage() {
                 className={`flex items-center gap-4 p-4 lg:p-5 rounded-2xl transition-all duration-300 ease-out transform hover:-translate-y-0.5 hover:scale-[1.01] border group w-full ${
                   task.done
                     ? "border-emerald-300/80 bg-gradient-to-r from-emerald-500/10 to-emerald-500/5 shadow-sm"
-                    : "border-clay-border hover:border-accent-border/60 hover:shadow-md bg-white"
+                    : "border-clay-border hover:border-accent-border/60 hover:shadow-md bg-white dark:bg-panel"
                 }`}
               >
                 {/* Checkbox (ONLY FOR TODAY - ANIMATED BOUNCE) */}
@@ -648,7 +644,7 @@ export default function DashboardPage() {
                   className={`px-2 py-0.5 rounded-lg text-xs font-extrabold border transition-all ${
                     initialSeconds === preset.secs && !timerCompleted
                       ? "bg-accent-base text-void border-accent-base shadow-xs"
-                      : "bg-white text-text border-clay-border hover:border-gray-400"
+                      : "bg-white dark:bg-panel text-text border-clay-border hover:border-gray-400"
                   }`}
                 >
                   {preset.label}
@@ -660,7 +656,7 @@ export default function DashboardPage() {
                   setTimerSeconds(next);
                   setInitialSeconds(next);
                 }}
-                className="px-2 py-0.5 rounded-lg text-xs font-extrabold bg-white text-text border border-clay-border hover:border-gray-400"
+                className="px-2 py-0.5 rounded-lg text-xs font-extrabold bg-white dark:bg-panel text-text border border-clay-border hover:border-gray-400"
                 title="Subtract 1 minute"
               >
                 -1m
@@ -671,7 +667,7 @@ export default function DashboardPage() {
                   setTimerSeconds(next);
                   setInitialSeconds(next);
                 }}
-                className="px-2 py-0.5 rounded-lg text-xs font-extrabold bg-white text-text border border-clay-border hover:border-gray-400"
+                className="px-2 py-0.5 rounded-lg text-xs font-extrabold bg-white dark:bg-panel text-text border border-clay-border hover:border-gray-400"
                 title="Add 1 minute"
               >
                 +1m
@@ -805,7 +801,7 @@ export default function DashboardPage() {
               <button
                 onClick={slideLeft}
                 type="button"
-                className="w-7 h-8 rounded-xl border border-clay-border bg-white hover:bg-gray-100 flex items-center justify-center text-text-dim font-bold transition-all shrink-0 shadow-xs"
+                className="w-7 h-8 rounded-xl border border-clay-border bg-white dark:bg-panel hover:bg-gray-100 dark:hover:bg-panel-2 flex items-center justify-center text-text-dim font-bold transition-all shrink-0 shadow-xs"
                 title="Slide left"
               >
                 ‹
@@ -851,7 +847,7 @@ export default function DashboardPage() {
               <button
                 onClick={slideRight}
                 type="button"
-                className="w-7 h-8 rounded-xl border border-clay-border bg-white hover:bg-gray-100 flex items-center justify-center text-text-dim font-bold transition-all shrink-0 shadow-xs transform hover:scale-110 active:scale-90"
+                className="w-7 h-8 rounded-xl border border-clay-border bg-white dark:bg-panel hover:bg-gray-100 dark:hover:bg-panel-2 flex items-center justify-center text-text-dim font-bold transition-all shrink-0 shadow-xs transform hover:scale-110 active:scale-90"
                 title="Slide right"
               >
                 ›
@@ -878,7 +874,7 @@ export default function DashboardPage() {
                 placeholder={`📅 Schedule target for ${selectedDateObj?.dayName || "this day"}...`}
                 value={newFutureTaskLabel}
                 onChange={(e) => setNewFutureTaskLabel(e.target.value)}
-                className="flex-1 bg-white border-2 border-clay-border hover:border-accent-border/80 rounded-xl px-3.5 py-2.5 text-xs md:text-sm font-medium focus:outline-none focus:border-accent-base focus:ring-4 focus:ring-accent-base/20 transition-all duration-300 placeholder:text-text-dimmer shadow-xs hover:shadow-sm focus:scale-[1.01]"
+                className="flex-1 bg-white text-black dark:text-black border-2 border-clay-border hover:border-accent-border/80 rounded-xl px-3.5 py-2.5 text-xs md:text-sm font-medium focus:outline-none focus:border-accent-base focus:ring-4 focus:ring-accent-base/20 transition-all duration-300 placeholder:text-text-dimmer shadow-xs hover:shadow-sm focus:scale-[1.01]"
               />
               <button
                 type="submit"
@@ -918,7 +914,7 @@ export default function DashboardPage() {
                 futureTasksForSelectedDate.map((task, idx) => (
                   <div
                     key={task.id}
-                    className="flex items-center justify-between gap-3 p-3 rounded-xl border border-clay-border bg-white hover:border-accent-border/60 hover:shadow-sm transition-all duration-300 ease-out transform hover:-translate-y-0.5 hover:scale-[1.01] group shrink-0"
+                    className="flex items-center justify-between gap-3 p-3 rounded-xl border border-clay-border bg-white dark:bg-panel hover:border-accent-border/60 hover:shadow-sm transition-all duration-300 ease-out transform hover:-translate-y-0.5 hover:scale-[1.01] group shrink-0"
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
                       {/* Number badge instead of checkbox */}

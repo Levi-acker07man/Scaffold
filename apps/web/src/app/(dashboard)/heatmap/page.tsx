@@ -87,12 +87,14 @@ export default function HeatmapPage() {
         const allDone = allTasks.length > 0 && allTasks.every((t) => t.done);
         const doneCount = allTasks.filter((t) => t.done).length;
 
-        if (allDone || doneCount > 0) {
+        if (allDone) {
           mergedMap[todayStr] = {
             date: todayStr,
-            count: allDone ? Math.max(doneCount, 3) : doneCount,
-            completed: allDone,
+            count: Math.max(doneCount, 3),
+            completed: true,
           };
+        } else {
+          delete mergedMap[todayStr];
         }
       }
 
@@ -103,46 +105,6 @@ export default function HeatmapPage() {
     fetchAllData();
   }, [supabase, todayStr]);
 
-  // Save real heatmap data persistently
-  const saveActivityMap = async (newMap: Record<string, DayActivity>) => {
-    const storageKey = getStorageKey(user?.id);
-    try {
-      localStorage.setItem(storageKey, JSON.stringify(newMap));
-    } catch (e) {
-      console.error("Error saving localStorage:", e);
-    }
-
-    if (user?.id) {
-      try {
-        await supabase.auth.updateUser({
-          data: {
-            heatmap_activity_v2: newMap,
-          },
-        });
-      } catch (e) { }
-    }
-  };
-
-  // Toggle a day active/completed when clicked on the heatmap
-  const handleCellClick = async (dateStr: string, isFuture: boolean) => {
-    if (isFuture) return;
-
-    const current = activityMap[dateStr];
-    const isNowCompleted = !current?.completed;
-    const newCount = isNowCompleted ? (current?.count ? current.count + 1 : 1) : 0;
-
-    const updatedMap: Record<string, DayActivity> = {
-      ...activityMap,
-      [dateStr]: {
-        date: dateStr,
-        count: newCount,
-        completed: isNowCompleted,
-      },
-    };
-
-    setActivityMap(updatedMap);
-    await saveActivityMap(updatedMap);
-  };
 
   // Calculate Streak Counters strictly from real activity (ZERO random numbers)
   const { currentStreak, longestStreak, totalActiveDays } = useMemo(() => {
@@ -256,7 +218,7 @@ export default function HeatmapPage() {
     const isToday = cell.date === todayStr;
 
     let base = "heatmap-cell ";
-    if (act?.completed || (act?.count && act.count > 0)) {
+    if (act?.completed) {
       if (act.count >= 3) base += "heatmap-cell-level-3 ";
       else if (act.count === 2) base += "heatmap-cell-level-2 ";
       else base += "heatmap-cell-level-1 ";
@@ -341,7 +303,6 @@ export default function HeatmapPage() {
                     {week.map((cell, dIdx) => (
                       <div
                         key={dIdx}
-                        onClick={() => handleCellClick(cell.date, cell.isFuture)}
                         title={`${cell.date}: ${cell.activity?.completed
                             ? "Active Day • Completed"
                             : "No activity recorded"

@@ -550,6 +550,13 @@
   cursor: pointer;
 }
 
+.dark .heatmap-cell {
+  background-color: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  fill: rgba(255, 255, 255, 0.07);
+  stroke: rgba(255, 255, 255, 0.25);
+}
+
 .heatmap-cell:hover {
   border-color: #22c55e;
   border-width: 2px;
@@ -650,6 +657,11 @@
 .heatmap-legend-cell.heatmap-cell-active {
   background: #22c55e;
   border-color: #16a34a;
+}
+
+.dark .heatmap-legend-cell {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.25);
 }
 
 
