@@ -664,31 +664,32 @@
    CUSTOM SCROLLBAR
    ═══════════════════════════════════════════════════ */
 .custom-scrollbar::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 12px;
+  height: 12px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: var(--input-bg);
+  background: rgba(0, 0, 0, 0.2);
   border-radius: 999px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: var(--accent-border);
+  background: #8b5cf6;
   border-radius: 999px;
   border: 2px solid transparent;
   background-clip: padding-box;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: var(--accent-base);
+  background: #a855f7;
   border: 2px solid transparent;
   background-clip: padding-box;
 }
 
 .custom-scrollbar {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(107, 70, 193, 0.2) rgba(0, 0, 0, 0.03);
+  scrollbar-width: auto;
+  scrollbar-color: #8b5cf6 rgba(0, 0, 0, 0.2);
+  scroll-behavior: smooth;
 }
 
 /* Utility to hide scrollbars */
@@ -974,6 +975,42 @@
 /* ═══════════════════════════════════════════════════
    LIVE BACKGROUNDS
    ═══════════════════════════════════════════════════ */
+.ambient.live-auth::after,
+.ambient.live-auth .ambient-live-overlay {
+  opacity: 0 !important;
+  background: transparent !important;
+  display: none !important;
+}
+
+.live-auth {
+  background: linear-gradient(145deg, #060913 0%, #0a0f1e 35%, #0e1528 70%, #060c16 100%);
+}
+
+@keyframes float { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-15px) scale(1.02); } }
+@keyframes pulse { 0%, 100% { opacity: var(--lo, 0.15); } 50% { opacity: var(--hi, 0.8); } }
+@keyframes shootStar {
+  0% { transform: translate(0, 0) rotate(-45deg); opacity: 0; }
+  5% { opacity: 1; } 60% { opacity: 0.7; }
+  100% { transform: translate(300px, 300px) rotate(-45deg); opacity: 0; }
+}
+@keyframes moonBreath { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+@keyframes auroraWave {
+  0% { transform: translateX(-30%) skewX(-5deg); }
+  50% { transform: translateX(10%) skewX(5deg); }
+  100% { transform: translateX(-30%) skewX(-5deg); }
+}
+@keyframes orbitRing { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+.interactive-float {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  cursor: crosshair;
+}
+.interactive-float:hover {
+  transform: scale(1.4) translateY(-10px) rotate(5deg) !important;
+  animation-play-state: paused;
+  z-index: 50;
+}
+
 .live-aurora {
   background: linear-gradient(45deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
   background-size: 200% 200%;
@@ -1000,6 +1037,118 @@
   background-size: 200% 200%;
   animation: liveGradient 30s ease infinite;
   will-change: background-position;
+}
+
+.live-celestial {
+  background:
+    radial-gradient(circle at 80% 20%, #ffe600 0%, #ffc400 12%, rgba(255, 230, 0, 0.4) 24%, transparent 42%),
+    radial-gradient(circle at 25% 30%, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0) 28%),
+    radial-gradient(circle at 65% 40%, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0) 32%),
+    linear-gradient(0deg, #107c41 0%, #2e9b48 18%, #76c74d 30%, transparent 48%),
+    linear-gradient(180deg, #38b6ff 0%, #7ce0ff 55%, #c8f5ff 100%);
+  background-size: 200% 200%, 150% 150%, 180% 180%, 100% 100%, 200% 200%;
+  animation: liveCelestialDay 25s ease infinite;
+  will-change: background-position;
+}
+
+.dark .live-celestial {
+  background:
+    radial-gradient(circle at 22% 24%, #fffef0 0%, #fef3c7 7%, rgba(254, 243, 199, 0.3) 15%, transparent 35%),
+    radial-gradient(2px 2px at 15% 18%, #ffffff 50%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 35% 42%, #ffffff 50%, transparent 100%),
+    radial-gradient(2.5px 2.5px at 68% 22%, #ffe885 50%, transparent 100%),
+    radial-gradient(2px 2px at 82% 38%, #ffffff 50%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 50% 12%, #a5f3fc 50%, transparent 100%),
+    radial-gradient(2px 2px at 88% 18%, #ffffff 50%, transparent 100%),
+    radial-gradient(ellipse at 65% 40%, rgba(139, 92, 246, 0.28) 0%, rgba(30, 27, 75, 0) 65%),
+    linear-gradient(160deg, #020617 0%, #090f22 40%, #171438 75%, #040912 100%);
+  background-size: 200% 200%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 150% 150%, 200% 200%;
+  animation: liveCelestialNight 25s ease infinite;
+  will-change: background-position;
+}
+
+@keyframes liveCelestialDay {
+  0% {
+    background-position: 0% 0%, 0% 0%, 100% 0%, 0% 0%, 0% 50%;
+  }
+  50% {
+    background-position: 25% 15%, 45% 15%, 55% 15%, 0% 0%, 100% 50%;
+  }
+  100% {
+    background-position: 0% 0%, 0% 0%, 100% 0%, 0% 0%, 0% 50%;
+  }
+}
+
+@keyframes liveCelestialNight {
+  0% {
+    background-position: 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 50%, 0% 50%;
+  }
+  50% {
+    background-position: 15% 15%, 6px 12px, -8px 5px, 12px -6px, -6px 14px, 8px -8px, -12px 6px, 100% 50%, 100% 50%;
+  }
+  100% {
+    background-position: 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 50%, 0% 50%;
+  }
+}
+
+/* ── Static Premium 1: Zenith Garden ── */
+.bg-static-zen {
+  background: radial-gradient(circle at 30% 20%, rgba(234, 179, 8, 0.15) 0%, transparent 45%),
+              radial-gradient(circle at 80% 70%, rgba(16, 185, 129, 0.2) 0%, transparent 55%),
+              linear-gradient(135deg, #022c22 0%, #064e3b 40%, #0f172a 100%) !important;
+  background-size: cover;
+}
+
+/* ── Static Premium 2: Northern Aurora ── */
+.bg-static-aurora {
+  background: radial-gradient(ellipse at 50% 0%, rgba(52, 211, 153, 0.25) 0%, transparent 60%),
+              radial-gradient(ellipse at 80% 30%, rgba(168, 85, 247, 0.25) 0%, transparent 70%),
+              linear-gradient(180deg, #090d16 0%, #1e1b4b 50%, #020617 100%) !important;
+  background-size: cover;
+}
+
+/* ── Live Premium 1: Cyber Matrix Pulse ── */
+.live-matrix {
+  background: radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.15) 0%, transparent 70%),
+              linear-gradient(135deg, #022c22 0%, #064e3b 50%, #047857 100%) !important;
+  background-size: 200% 200% !important;
+  animation: liveMatrixPulse 12s ease-in-out infinite !important;
+}
+.dark .live-matrix {
+  background: radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.25) 0%, transparent 70%),
+              linear-gradient(0deg, rgba(16, 185, 129, 0.05) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(16, 185, 129, 0.05) 1px, transparent 1px),
+              linear-gradient(180deg, #020617 0%, #052e16 50%, #020617 100%) !important;
+  background-size: 100% 100%, 40px 40px, 40px 40px, 200% 200% !important;
+  animation: liveMatrixPulse 12s ease-in-out infinite !important;
+}
+
+@keyframes liveMatrixPulse {
+  0% { background-position: 0% 50%, 0 0, 0 0, 0% 50%; }
+  50% { background-position: 100% 50%, 20px 20px, 20px 20px, 100% 50%; }
+  100% { background-position: 0% 50%, 0 0, 0 0, 0% 50%; }
+}
+
+/* ── Live Premium 2: Sakura Blossom Breeze ── */
+.live-sakura {
+  background: radial-gradient(circle at 20% 30%, rgba(244, 114, 182, 0.3) 0%, transparent 60%),
+              radial-gradient(circle at 80% 70%, rgba(251, 207, 232, 0.3) 0%, transparent 60%),
+              linear-gradient(135deg, #fff1f2 0%, #fce7f3 50%, #fdf2f8 100%) !important;
+  background-size: 200% 200% !important;
+  animation: liveSakuraBreeze 14s ease-in-out infinite !important;
+}
+.dark .live-sakura {
+  background: radial-gradient(circle at 20% 30%, rgba(244, 114, 182, 0.25) 0%, transparent 60%),
+              radial-gradient(circle at 80% 70%, rgba(168, 85, 247, 0.25) 0%, transparent 60%),
+              linear-gradient(135deg, #1f1020 0%, #3b0764 50%, #1e1b4b 100%) !important;
+  background-size: 200% 200% !important;
+  animation: liveSakuraBreeze 14s ease-in-out infinite !important;
+}
+
+@keyframes liveSakuraBreeze {
+  0% { background-position: 0% 0%; }
+  50% { background-position: 100% 100%; }
+  100% { background-position: 0% 0%; }
 }
 
 @keyframes liveGradient {

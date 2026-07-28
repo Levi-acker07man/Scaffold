@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { ThemeToggle } from "@/shared/components/ThemeToggle";
 import { AvatarPicker } from "@/shared/components/AvatarPicker";
+import { useShop } from "@/shared/context/ShopContext";
 
 
 export default function DashboardLayout({
@@ -15,6 +16,7 @@ export default function DashboardLayout({
 }) {
   const pathname = usePathname();
   const supabase = createClient();
+  const { coins } = useShop();
   const [profile, setProfile] = useState<any>(null);
   const [sessionUser, setSessionUser] = useState<any>(null);
 
@@ -235,13 +237,15 @@ export default function DashboardLayout({
 
           {/* Right side stats */}
           <div className="flex items-center gap-4">
-            <div
-              className="nav-pill flex items-center gap-2 px-4 py-2 rounded-full font-mono text-[13px]"
+            <Link
+              href="/shop"
+              className="nav-pill flex items-center gap-2 px-4 py-2 rounded-full font-mono text-[13px] hover:scale-105 transition-all cursor-pointer"
               style={{ color: "var(--accent-base)" }}
+              title="Visit Theme Shop"
             >
               <span className="text-yellow-500 font-bold">🪙</span>
-              450
-            </div>
+              {coins.toLocaleString()}
+            </Link>
             
             {/* Right side items */}
             <div className="flex items-center gap-4 border-l border-clay-border pl-6 ml-2">
@@ -257,7 +261,7 @@ export default function DashboardLayout({
 
 
         {/* Page Content */}
-        <div className="flex-1 overflow-hidden pr-2 pb-10 flex flex-col min-h-0">
+        <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 pb-10 flex flex-col min-h-0">
           {children}
         </div>
       </main>
