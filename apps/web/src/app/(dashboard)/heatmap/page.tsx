@@ -278,32 +278,12 @@ export default function HeatmapPage() {
           <h1 className="text-3xl font-black text-text tracking-tight">
             Activity Heatmap
           </h1>
-          <p className="text-sm font-medium text-text-dim mt-1">
-            365-day consistency calendar. Automatically updates with your target completions.
-          </p>
         </div>
 
-        {/* Today Calendar Indicator */}
-        <div className="flex items-center gap-3">
-          <div className="clay px-5 py-2.5 rounded-2xl border border-clay-border flex items-center gap-3 shadow-sm">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.8)]" />
-            <span className="text-sm font-extrabold text-text uppercase tracking-wider">
-              Today: {formattedToday}
-            </span>
-          </div>
-        </div>
       </div>
 
       {/* ── 1. THE FULLSCREEN HEATMAP SECTION ── */}
       <div className="clay rounded-3xl p-8 border border-clay-border flex flex-col gap-6 shadow-sm w-full">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-black text-text">
-            {weeks.length * 7}-Day Calendar Grid
-          </h2>
-          <span className="text-xs font-bold text-text-dim">
-            Click any square to record activity
-          </span>
-        </div>
 
         {/* Big Fullscreen LeetCode Calendar Grid */}
         <div className="heatmap-scroll w-full py-2">

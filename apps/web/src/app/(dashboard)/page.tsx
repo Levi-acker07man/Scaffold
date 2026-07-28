@@ -92,27 +92,9 @@ export default function DashboardPage() {
   const [timerStep, setTimerStep] = useState<number>(1800);
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [timerCompleted, setTimerCompleted] = useState<boolean>(false);
-  const [liveClockStr, setLiveClockStr] = useState<string>("");
 
   const supabase = useMemo(() => createClient(), []);
   const dateSliderRef = useRef<HTMLDivElement>(null);
-
-  // Live Clock string in corner
-  useEffect(() => {
-    const updateClock = () => {
-      const now = new Date();
-      setLiveClockStr(
-        now.toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-        })
-      );
-    };
-    updateClock();
-    const interval = setInterval(updateClock, 1000);
-    return () => clearInterval(interval);
-  }, []);
 
   // Timer countdown hook
   useEffect(() => {
@@ -426,9 +408,6 @@ export default function DashboardPage() {
             <h2 className="text-2xl font-black text-text flex items-center gap-3">
               Today&apos;s Targets
             </h2>
-            <p className="text-xs font-semibold text-text-dimmer mt-1">
-              Targets scheduled for today automatically appear here
-            </p>
           </div>
           <span
             className="text-xs font-extrabold uppercase tracking-wider px-3.5 py-2 rounded-xl shrink-0"
@@ -501,13 +480,8 @@ export default function DashboardPage() {
                   <path d="M12 5v14M5 12h14" />
                 </svg>
               </div>
-              <div className="text-center">
-                <p className="text-text-dim text-lg font-bold">
-                  No targets scheduled for today
-                </p>
-                <p className="text-text-dimmer text-sm mt-1">
-                  Add a target above or schedule upcoming days in the planner!
-                </p>
+              <div className="text-center text-text-dim text-lg font-bold">
+                No Tasks
               </div>
             </div>
           ) : (
@@ -550,7 +524,7 @@ export default function DashboardPage() {
                 <div className="flex flex-col flex-1 min-w-0">
                   <div className="flex items-center gap-3">
                     <span
-                      className={`text-base lg:text-lg font-bold truncate transition-all duration-300 ${
+                      className={`text-base lg:text-lg font-light truncate transition-all duration-300 ${
                         task.done
                           ? "text-text-dim line-through decoration-text-dimmer/60"
                           : "text-text group-hover:text-accent-base"
@@ -617,29 +591,17 @@ export default function DashboardPage() {
               </div>
               <div>
                 <h3 className="text-sm font-black text-text">Focus Timer</h3>
-                <p className="text-[10px] font-medium text-text-dimmer">
-                  Custom countdown session
-                </p>
               </div>
-            </div>
-            {/* Subtle live clock indicator */}
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-input-bg border border-clay-border">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-              <span className="text-xs font-mono font-extrabold text-text tracking-wider">
-                {liveClockStr || "00:00"}
-              </span>
             </div>
           </div>
 
           {/* Compact Digital Timer Display */}
           <div className="flex flex-col items-center justify-center py-3 px-4 rounded-2xl bg-input-bg border border-clay-border relative overflow-hidden">
-            <span className="text-[9px] font-extrabold uppercase tracking-widest text-text-dimmer mb-0.5">
-              {timerCompleted
-                ? "Session Completed! 🎉"
-                : isRunning
-                ? "Session in Progress"
-                : "Ready to Focus"}
-            </span>
+            {timerCompleted || isRunning ? (
+              <span className="text-[9px] font-extrabold uppercase tracking-widest text-text-dimmer mb-0.5">
+                {timerCompleted ? "Session Completed! 🎉" : "Session in Progress"}
+              </span>
+            ) : null}
             <div className="flex items-center w-full px-2 my-1">
               <div className="flex-1" />
               <div className="text-5xl font-black tracking-tight text-text font-mono shrink-0">
@@ -901,15 +863,7 @@ export default function DashboardPage() {
               </button>
             </div>
 
-            {/* Selected Date Header */}
-            <div className="flex items-center justify-between mt-2.5 mb-1.5 px-1 shrink-0">
-              <span className="text-xs font-black uppercase tracking-wider text-text-dim">
-                {selectedDateObj?.label || selectedFutureDate}
-              </span>
-              <span className="text-[10px] font-semibold text-text-dimmer">
-                No checkboxes (Heatmap safe)
-              </span>
-            </div>
+
 
             {/* Add Future Task Form (ANIMATED & INTERACTIVE) */}
             <form
@@ -949,13 +903,8 @@ export default function DashboardPage() {
             {/* Future Tasks List for Selected Date */}
             <div className="flex flex-col gap-2 flex-1 overflow-y-auto pr-1 scrollbar-hide my-1 min-h-0">
               {futureTasksForSelectedDate.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-5 px-4 rounded-xl bg-input-bg border border-clay-border/50">
-                  <p className="text-xs font-bold text-text-dim">
-                    No targets scheduled for this date
-                  </p>
-                  <p className="text-[11px] text-text-dimmer mt-0.5 text-center">
-                    Add targets above to have them ready when the day arrives
-                  </p>
+                <div className="flex-1 flex items-center justify-center text-xs font-bold text-text-dim pb-4">
+                  No Tasks
                 </div>
               ) : (
                 futureTasksForSelectedDate.map((task, idx) => (
@@ -968,7 +917,7 @@ export default function DashboardPage() {
                       <span className="w-6 h-6 rounded-lg bg-gradient-to-br from-accent-bg to-purple-100 border border-accent-border flex items-center justify-center text-xs font-extrabold text-accent-base shrink-0 shadow-xs">
                         {idx + 1}
                       </span>
-                      <span className="text-sm font-bold text-text truncate group-hover:text-accent-base transition-colors duration-200">
+                      <span className="text-sm font-light text-text truncate group-hover:text-accent-base transition-colors duration-200">
                         {task.label}
                       </span>
                     </div>

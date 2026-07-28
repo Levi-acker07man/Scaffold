@@ -41,27 +41,45 @@ export default function DashboardLayout({
       <aside className="clay hidden md:flex flex-col w-64 rounded-3xl p-6 h-[calc(100vh-48px)] border border-clay-border">
         {/* Branding */}
         <div className="flex items-center gap-3 mb-10">
-          <div
-            className="w-9 h-9 rounded-full flex items-center justify-center"
-            style={{
-              background: "var(--accent-bg)",
-              border: "1.5px solid var(--accent-border)",
-              boxShadow:
-                "3px 3px 6px rgba(0,0,0,0.06), inset -3px -3px 6px rgba(255,255,255,0.5), inset 3px 3px 6px rgba(107,70,193,0.06)",
-            }}
-          >
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="var(--accent-base)"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+          <div className="w-10 h-10 relative flex items-center justify-center shrink-0">
+            <svg viewBox="0 0 120 120" className="w-full h-full">
+              <defs>
+                <filter id="bioGlow">
+                  <feGaussianBlur stdDeviation="2.5" result="blur"/>
+                  <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                </filter>
+              </defs>
+              
+              {/* Notebook in Center */}
+              <g filter="url(#bioGlow)">
+                <rect x="42" y="36" width="36" height="48" rx="3" fill="none" stroke="var(--accent-base)" strokeWidth="2" />
+                <path d="M48 36v48" stroke="var(--accent-base)" strokeWidth="1" opacity=".6" />
+                <line x1="52" y1="48" x2="70" y2="48" stroke="var(--accent-base)" strokeWidth="1.5" strokeLinecap="round" />
+                <line x1="52" y1="58" x2="70" y2="58" stroke="var(--accent-base)" strokeWidth="1.5" strokeLinecap="round" />
+                <line x1="52" y1="68" x2="64" y2="68" stroke="var(--accent-base)" strokeWidth="1.5" strokeLinecap="round" />
+              </g>
+
+              {/* Orbiting track */}
+              <circle cx="60" cy="60" r="46" fill="none" stroke="var(--accent-base)" strokeWidth="1" opacity=".2" />
+
+              {/* Rotating Pens */}
+              <g className="animate-spin" style={{ animationDuration: "15s", transformOrigin: "60px 60px" }} filter="url(#bioGlow)">
+                {/* Pen 1 */}
+                <g transform="translate(60, 14) rotate(45)">
+                  <path d="M-3,-8 L3,-8 L3,3 L0,9 L-3,3 Z" fill="none" stroke="var(--accent-base)" strokeWidth="1.5" strokeLinejoin="round" />
+                  <line x1="-3" y1="3" x2="3" y2="3" stroke="var(--accent-base)" strokeWidth="1.5" />
+                </g>
+                {/* Pen 2 */}
+                <g transform="translate(60, 106) rotate(225)">
+                  <path d="M-3,-8 L3,-8 L3,3 L0,9 L-3,3 Z" fill="none" stroke="var(--accent-base)" strokeWidth="1.5" strokeLinejoin="round" />
+                  <line x1="-3" y1="3" x2="3" y2="3" stroke="var(--accent-base)" strokeWidth="1.5" />
+                </g>
+              </g>
+
+              {/* Inner rotating dashed ring */}
+              <g className="animate-spin" style={{ animationDuration: "20s", animationDirection: "reverse", transformOrigin: "60px 60px" }}>
+                <circle cx="60" cy="60" r="32" fill="none" stroke="var(--accent-base)" strokeWidth="1" strokeDasharray="3 6" opacity=".5" filter="url(#bioGlow)"/>
+              </g>
             </svg>
           </div>
           <span className="font-extrabold text-lg text-text tracking-wide">
@@ -206,7 +224,7 @@ export default function DashboardLayout({
             </div>
 
             <div>
-              <h2 className="text-2xl font-bold text-text leading-none mb-1.5">
+              <h2 className="text-2xl font-light text-text leading-none mb-1.5">
                 {profile?.qualification || "Student"}
               </h2>
               <p className="text-[10px] text-text-dim font-mono uppercase tracking-[0.2em]">
