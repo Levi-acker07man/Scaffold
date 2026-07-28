@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useMemo } from "react";
 import { createClient } from "@/utils/supabase/client";
+import { useShop } from "@/shared/context/ShopContext";
 
 interface Task {
   id: string;
@@ -22,11 +23,31 @@ interface UpcomingDate {
 }
 
 export default function DashboardPage() {
+  const { addReward, subtractReward } = useShop();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [newTaskLabel, setNewTaskLabel] = useState("");
   const [newFutureTaskLabel, setNewFutureTaskLabel] = useState("");
   const [user, setUser] = useState<any>(null);
+
+  const normalizeTasksByDay = (taskList: Task[], referenceTodayStr: string): Task[] => {
+    const counts: Record<string, number> = {};
+    taskList.forEach((t) => {
+      const d = t.date || referenceTodayStr;
+      counts[d] = (counts[d] || 0) + 1;
+    });
+
+    return taskList.map((t) => {
+      const d = t.date || referenceTodayStr;
+      const total = counts[d] || 1;
+      const reward = Number((10 / total).toFixed(1));
+      return {
+        ...t,
+        xp: reward,
+        coins: reward,
+      };
+    });
+  };
 
   // Today's date string in YYYY-MM-DD (local timezone)
   const todayStr = useMemo(() => {
@@ -239,8 +260,35 @@ export default function DashboardPage() {
 
   const handleToggleTask = async (id: string, currentDone: boolean) => {
     const nextDone = !currentDone;
-    const updatedTasks = tasks.map((t) =>
-      t.id === id ? { ...t, done: nextDone } : t
+    const task = tasks.find((t) => t.id === id);
+    const d = task?.date || todayStr;
+    const dayTasks = tasks.filter((t) => (t.date || todayStr) === d);
+    const N = dayTasks.length || 1;
+    const oldDoneCount = dayTasks.filter((t) => t.done).length;
+    const newDoneCount = nextDone
+      ? oldDoneCount + 1
+      : Math.max(0, oldDoneCount - 1);
+
+    const oldCumulative = Math.min(
+      10,
+      Number((oldDoneCount * (10 / N)).toFixed(1))
+    );
+    const newCumulative = Math.min(
+      10,
+      Number((newDoneCount * (10 / N)).toFixed(1))
+    );
+
+    if (nextDone && newCumulative > oldCumulative) {
+      const earned = Number((newCumulative - oldCumulative).toFixed(1));
+      await addReward(earned, earned);
+    } else if (!nextDone && oldCumulative > newCumulative) {
+      const lost = Number((oldCumulative - newCumulative).toFixed(1));
+      await subtractReward(lost, lost);
+    }
+
+    const updatedTasks = normalizeTasksByDay(
+      tasks.map((t) => (t.id === id ? { ...t, done: nextDone } : t)),
+      todayStr
     );
 
     setTasks(updatedTasks);
@@ -259,7 +307,10 @@ export default function DashboardPage() {
   };
 
   const handleDeleteTask = async (id: string) => {
-    const updatedTasks = tasks.filter((t) => t.id !== id);
+    const updatedTasks = normalizeTasksByDay(
+      tasks.filter((t) => t.id !== id),
+      todayStr
+    );
     setTasks(updatedTasks);
     try {
       localStorage.setItem(
@@ -279,8 +330,6 @@ export default function DashboardPage() {
     const label = labelStr.trim();
     if (!label) return;
 
-    const xp = 20;
-    const coins = 5;
     const tempId = `task_${Date.now()}_${Math.random()
       .toString(36)
       .substring(2, 6)}`;
@@ -288,14 +337,14 @@ export default function DashboardPage() {
     const newTask: Task = {
       id: tempId,
       label,
-      xp,
-      coins,
+      xp: 10,
+      coins: 10,
       done: false,
       user_id: user?.id,
       date: targetDate,
     };
 
-    const updatedTasks = [...tasks, newTask];
+    const updatedTasks = normalizeTasksByDay([...tasks, newTask], todayStr);
     setTasks(updatedTasks);
     try {
       localStorage.setItem(
@@ -309,11 +358,12 @@ export default function DashboardPage() {
     }
 
     if (user?.id) {
+      const created = updatedTasks.find((t) => t.id === tempId) || newTask;
       let insertPayload: any = {
         user_id: user.id,
         label,
-        xp,
-        coins,
+        xp: created.xp,
+        coins: created.coins,
         done: false,
         date: targetDate,
       };
@@ -537,6 +587,13 @@ export default function DashboardPage() {
                         COMPLETED ✓
                       </span>
                     )}
+                    <span
+                      className="text-[11px] font-mono font-extrabold px-2 py-0.5 rounded-md bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 flex items-center gap-1.5 shrink-0"
+                      title="Daily reward share for this task"
+                    >
+                      <span>🪙 {task.coins || 10}</span>
+                      <span className="text-purple-400">⚡ {task.xp || 10} XP</span>
+                    </span>
                   </div>
                 </div>
 
@@ -919,6 +976,10 @@ export default function DashboardPage() {
                       </span>
                       <span className="text-sm font-light text-text truncate group-hover:text-accent-base transition-colors duration-200">
                         {task.label}
+                      </span>
+                      <span className="text-[10px] font-mono font-extrabold px-2 py-0.5 rounded-md bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 flex items-center gap-1 shrink-0">
+                        <span>🪙 {task.coins || 10}</span>
+                        <span className="text-purple-400">⚡ {task.xp || 10} XP</span>
                       </span>
                     </div>
 

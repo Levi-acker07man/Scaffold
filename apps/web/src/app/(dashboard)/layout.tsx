@@ -16,7 +16,7 @@ export default function DashboardLayout({
 }) {
   const pathname = usePathname();
   const supabase = createClient();
-  const { coins } = useShop();
+  const { coins, level, currentLevelXp, xpNeeded } = useShop();
   const [profile, setProfile] = useState<any>(null);
   const [sessionUser, setSessionUser] = useState<any>(null);
 
@@ -210,7 +210,7 @@ export default function DashboardLayout({
                   strokeWidth="4"
                   strokeDasharray={2 * Math.PI * 22}
                   strokeDashoffset={
-                    2 * Math.PI * 22 - (7 / 10) * (2 * Math.PI * 22)
+                    2 * Math.PI * 22 - (currentLevelXp / Math.max(1, xpNeeded)) * (2 * Math.PI * 22)
                   }
                   strokeLinecap="round"
                   className="transition-all duration-1000 ease-out"
@@ -221,7 +221,7 @@ export default function DashboardLayout({
                 />
               </svg>
               <span className="relative z-10 text-lg font-black text-text">
-                12
+                {level}
               </span>
             </div>
 
@@ -230,13 +230,24 @@ export default function DashboardLayout({
                 {profile?.qualification || "Student"}
               </h2>
               <p className="text-[10px] text-text-dim font-mono uppercase tracking-[0.2em]">
-                {profile?.learner_type === 'neurodivergent' ? 'NeuroDivergent' : 'Typical'} • Lvl 12
+                {profile?.learner_type === 'neurodivergent' ? 'NeuroDivergent' : 'Typical'} • Lvl {level}
               </p>
             </div>
           </div>
 
           {/* Right side stats */}
           <div className="flex items-center gap-4">
+            <div
+              className="flex items-center gap-2 px-3.5 py-2 rounded-full font-mono text-[12px] bg-purple-500/10 border border-purple-500/30 text-purple-400 shadow-xs"
+              title={`Level ${level} — ${currentLevelXp}/${xpNeeded} XP to reach Level ${level + 1}`}
+            >
+              <span className="font-extrabold text-purple-400 flex items-center gap-1">
+                <span>⚡</span>
+                <span>LVL {level}</span>
+              </span>
+              <span className="text-xs text-text-dim font-semibold">({currentLevelXp}/{xpNeeded} XP)</span>
+            </div>
+
             <Link
               href="/shop"
               className="nav-pill flex items-center gap-2 px-4 py-2 rounded-full font-mono text-[13px] hover:scale-105 transition-all cursor-pointer"

@@ -74,13 +74,36 @@ export const SHOP_THEMES: ShopThemeItem[] = [
 ];
 
 // Free default themes that are always unlocked for everyone
+// Free default themes that are always unlocked for everyone
 export const FREE_THEMES = ["live-auth", "/Fantasy-Autumn.png", "live-aurora"];
+
+export function getLevelInfo(totalXp: number) {
+  let level = 1;
+  let xpNeeded = 100;
+  let currentLevelXp = totalXp;
+  while (currentLevelXp >= xpNeeded) {
+    currentLevelXp -= xpNeeded;
+    level += 1;
+    xpNeeded = 100 * level;
+  }
+  return {
+    level,
+    currentLevelXp,
+    xpNeeded,
+  };
+}
 
 interface ShopContextType {
   coins: number;
+  xp: number;
+  level: number;
+  currentLevelXp: number;
+  xpNeeded: number;
   unlockedThemes: string[];
   purchaseTheme: (themeId: string, price: number) => Promise<boolean>;
   isUnlocked: (themeId: string) => boolean;
+  addReward: (xpAmount: number, coinAmount: number) => Promise<void>;
+  subtractReward: (xpAmount: number, coinAmount: number) => Promise<void>;
 }
 
 const ShopContext = createContext<ShopContextType | undefined>(undefined);
@@ -94,6 +117,16 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
       }
     }
     return 1200; // Give new users 1200 coins so they can purchase themes in the shop
+  });
+
+  const [xp, setXp] = useState<number>(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("scaffold_xp");
+      if (stored !== null && !isNaN(Number(stored))) {
+        return Number(stored);
+      }
+    }
+    return 0;
   });
 
   const [unlockedThemes, setUnlockedThemes] = useState<string[]>(() => {
@@ -125,6 +158,12 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
             localStorage.setItem("scaffold_coins", meta.coins.toString());
           }
         }
+        if (typeof meta.xp === "number") {
+          setXp(meta.xp);
+          if (typeof window !== "undefined") {
+            localStorage.setItem("scaffold_xp", meta.xp.toString());
+          }
+        }
         if (Array.isArray(meta.unlockedThemes)) {
           setUnlockedThemes(meta.unlockedThemes);
           if (typeof window !== "undefined") {
@@ -139,8 +178,52 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
     fetchShopData();
   }, []);
 
+  const { level, currentLevelXp, xpNeeded } = getLevelInfo(xp);
+
   const isUnlocked = (themeId: string) => {
     return FREE_THEMES.includes(themeId) || unlockedThemes.includes(themeId);
+  };
+
+  const addReward = async (xpAmount: number, coinAmount: number) => {
+    const nextXp = Math.max(0, Number((xp + xpAmount).toFixed(1)));
+    const nextCoins = Math.max(0, Number((coins + coinAmount).toFixed(1)));
+    setXp(nextXp);
+    setCoins(nextCoins);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("scaffold_xp", nextXp.toString());
+      localStorage.setItem("scaffold_coins", nextCoins.toString());
+    }
+    try {
+      await supabase.auth.updateUser({
+        data: {
+          xp: nextXp,
+          coins: nextCoins,
+        },
+      });
+    } catch (e) {
+      console.error("Failed to update user rewards:", e);
+    }
+  };
+
+  const subtractReward = async (xpAmount: number, coinAmount: number) => {
+    const nextXp = Math.max(0, Number((xp - xpAmount).toFixed(1)));
+    const nextCoins = Math.max(0, Number((coins - coinAmount).toFixed(1)));
+    setXp(nextXp);
+    setCoins(nextCoins);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("scaffold_xp", nextXp.toString());
+      localStorage.setItem("scaffold_coins", nextCoins.toString());
+    }
+    try {
+      await supabase.auth.updateUser({
+        data: {
+          xp: nextXp,
+          coins: nextCoins,
+        },
+      });
+    } catch (e) {
+      console.error("Failed to update user rewards:", e);
+    }
   };
 
   const purchaseTheme = async (themeId: string, price: number): Promise<boolean> => {
@@ -173,7 +256,20 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <ShopContext.Provider value={{ coins, unlockedThemes, purchaseTheme, isUnlocked }}>
+    <ShopContext.Provider
+      value={{
+        coins,
+        xp,
+        level,
+        currentLevelXp,
+        xpNeeded,
+        unlockedThemes,
+        purchaseTheme,
+        isUnlocked,
+        addReward,
+        subtractReward,
+      }}
+    >
       {children}
     </ShopContext.Provider>
   );
