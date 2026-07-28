@@ -238,11 +238,12 @@ export default function DashboardLayout({
           {/* Right side stats */}
           <div className="flex items-center gap-4">
             <div
-              className="flex items-center gap-2 px-3.5 py-2 rounded-full font-mono text-[12px] bg-purple-500/10 border border-purple-500/30 text-purple-400 shadow-xs"
+              className="nav-pill flex items-center gap-2 px-4 py-2 rounded-full font-mono text-[13px] hover:scale-105 transition-all cursor-pointer"
+              style={{ color: "var(--accent-base)" }}
               title={`Level ${level} — ${currentLevelXp}/${xpNeeded} XP to reach Level ${level + 1}`}
             >
-              <span className="font-extrabold text-purple-400 flex items-center gap-1">
-                <span>⚡</span>
+              <span className="font-extrabold flex items-center gap-1">
+                <span className="text-yellow-500 font-bold">⚡</span>
                 <span>LVL {level}</span>
               </span>
               <span className="text-xs text-text-dim font-semibold">({currentLevelXp}/{xpNeeded} XP)</span>

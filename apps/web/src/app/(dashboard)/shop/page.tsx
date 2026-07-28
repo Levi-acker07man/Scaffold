@@ -40,37 +40,24 @@ export default function ShopPage() {
 
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="max-w-2xl shrink-0">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent-base/10 border border-accent-base/30 text-accent-base text-xs font-mono font-bold mb-4 uppercase tracking-wider">
-              <span>✨ Premium Boutique</span>
-            </div>
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-text tracking-tight mb-3">
-              Wallpaper & Theme Boutique
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-text tracking-tight">
+              Wallpaper & Theme
             </h1>
-            <p className="text-sm md:text-base text-text-dim leading-relaxed">
-              Customize your study sanctuary with handcrafted static and live animated backgrounds.
-              Purchased themes are <span className="text-text font-bold">permanently unlocked</span> and added directly to your Themes menu!
-            </p>
           </div>
 
           {/* Wallet Card */}
-          <div className="flex flex-col items-start bg-black/10 dark:bg-white/5 border border-clay-border p-6 rounded-2xl backdrop-blur-md w-full lg:w-auto shrink-0 shadow-inner">
-            <span className="text-xs font-mono uppercase tracking-widest text-text-dim mb-1">
-              Your Coin Wallet
-            </span>
+          <div className="flex items-center justify-center bg-black/10 dark:bg-white/5 border border-clay-border p-6 rounded-2xl backdrop-blur-md w-full lg:w-auto shrink-0 shadow-inner">
             <div className="flex items-center gap-2.5">
               <span className="text-3xl font-extrabold text-yellow-500 drop-shadow-sm">🪙</span>
               <span className="text-3xl md:text-4xl font-black text-text font-mono">
                 {coins.toLocaleString()}
               </span>
             </div>
-            <p className="text-[11px] text-text-dim mt-2">
-              Wallpapers cost <strong className="text-text">600 to 1,600 Coins</strong> each
-            </p>
           </div>
         </div>
 
-        {/* Filter Tabs & Scroll Helper */}
-        <div className="flex items-center justify-between flex-wrap gap-4 mt-8 pt-6 border-t border-clay-border/60">
+        {/* Filter Tabs */}
+        <div className="flex items-center flex-wrap gap-4 mt-8 pt-6 border-t border-clay-border/60">
           <div className="flex items-center gap-2">
             <button
               onClick={() => setFilter("all")}
@@ -100,16 +87,6 @@ export default function ShopPage() {
               Live Wallpapers ({SHOP_THEMES.filter((t) => t.type === "live").length})
             </button>
           </div>
-
-          <button
-            onClick={() => {
-              const el = document.getElementById("shop-bottom-anchor");
-              if (el) el.scrollIntoView({ behavior: "smooth" });
-            }}
-            className="text-xs font-mono font-bold text-accent-base hover:underline flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent-base/10 border border-accent-base/30 transition-all hover:scale-105"
-          >
-            <span>↓ Scroll to Bottom Wallpapers</span>
-          </button>
         </div>
       </div>
 
@@ -118,7 +95,6 @@ export default function ShopPage() {
         {filteredThemes.map((item) => {
           const unlocked = isUnlocked(item.id);
           const canAfford = coins >= item.price;
-          const neededCoins = item.price - coins;
           const isCurrentlyEquipped = background.value === item.id;
           const isCelebrated = justPurchased === item.id;
 
@@ -173,8 +149,8 @@ export default function ShopPage() {
 
               {/* Card Body */}
               <div className="p-6 flex-1 flex flex-col justify-between">
-                <div className="mb-6">
-                  <div className="flex items-center justify-between mb-2">
+                <div className="mb-4">
+                  <div className="flex items-center justify-between">
                     <h3 className="text-xl font-extrabold text-text tracking-tight">
                       {item.name}
                     </h3>
@@ -183,9 +159,6 @@ export default function ShopPage() {
                       <span>{item.price.toLocaleString()}</span>
                     </div>
                   </div>
-                  <p className="text-xs md:text-sm text-text-dim leading-relaxed">
-                    {item.description}
-                  </p>
                 </div>
 
                 {/* Bottom Actions */}
@@ -220,12 +193,7 @@ export default function ShopPage() {
                           : "bg-black/10 dark:bg-white/5 border border-clay-border text-text-dim cursor-not-allowed opacity-60"
                         }`}
                     >
-                      <span>🔒</span>
-                      {canAfford ? (
-                        <span>Purchase & Unlock — 🪙 {item.price.toLocaleString()}</span>
-                      ) : (
-                        <span>Need {neededCoins.toLocaleString()} More Coins (🪙 {item.price.toLocaleString()} Total)</span>
-                      )}
+                      <span>🪙 {item.price.toLocaleString()}</span>
                     </button>
                   )}
                 </div>
