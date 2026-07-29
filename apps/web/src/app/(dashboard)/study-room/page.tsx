@@ -1,31 +1,31 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Notebook } from "@/features/study-room/types";
-
-// Mock data until Supabase is hooked up
-const MOCK_NOTEBOOKS: Notebook[] = [
-  {
-    id: "1",
-    user_id: "user1",
-    title: "Introduction to Machine Learning",
-    type: "learn",
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: "2",
-    user_id: "user1",
-    title: "Calculus III Homework",
-    type: "solve",
-    created_at: new Date(Date.now() - 86400000).toISOString(),
-    updated_at: new Date(Date.now() - 86400000).toISOString(),
-  },
-];
+import { getNotebooks, deleteNotebook } from "@/features/study-room/lib/notebookStore";
+import { StoredNotebook } from "@/features/study-room/types";
 
 export default function StudyRoomLibraryPage() {
   const [showNewDialog, setShowNewDialog] = useState(false);
+  const [notebooks, setNotebooks] = useState<StoredNotebook[]>([]);
+
+  const loadNotebooks = () => {
+    const loaded = getNotebooks();
+    loaded.sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
+    setNotebooks(loaded);
+  };
+
+  useEffect(() => {
+    loadNotebooks();
+  }, []);
+
+  const handleDelete = (e: React.MouseEvent, id: string) => {
+    e.preventDefault();
+    if (confirm("Are you sure you want to delete this notebook?")) {
+      deleteNotebook(id);
+      loadNotebooks();
+    }
+  };
 
   return (
     <div className="flex flex-col h-full relative">
@@ -45,33 +45,62 @@ export default function StudyRoomLibraryPage() {
       </header>
 
       {/* Library Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {MOCK_NOTEBOOKS.map((notebook) => (
-          <Link
-            key={notebook.id}
-            href={`/study-room/notebook/${notebook.id}`}
-            className="group p-6 rounded-2xl border border-clay-border bg-[var(--input-bg)] hover:bg-[var(--card-hover-bg)] hover:border-[var(--card-hover-border)] transition-all flex flex-col h-48"
+      {notebooks.length === 0 ? (
+        <div className="flex-1 flex flex-col items-center justify-center text-center max-w-md mx-auto">
+          <div className="w-24 h-24 mb-6 text-6xl">📚</div>
+          <h2 className="text-2xl font-bold text-text mb-2">Your library is empty</h2>
+          <p className="text-text-dim mb-6">
+            Create your first notebook to start learning or solving problems with your AI tutor.
+          </p>
+          <button
+            onClick={() => setShowNewDialog(true)}
+            className="px-6 py-3 bg-accent-bg text-accent-base font-bold rounded-xl hover:bg-[var(--accent-hover-bg)] border border-accent-border transition-colors shadow-sm"
           >
-            <div className="flex justify-between items-start mb-4">
-              <div
-                className={`px-3 py-1 text-xs font-bold rounded-full ${
-                  notebook.type === "learn"
-                    ? "bg-blue-500/10 text-blue-600 dark:text-blue-400"
-                    : "bg-green-500/10 text-green-600 dark:text-green-400"
-                }`}
-              >
-                {notebook.type.charAt(0).toUpperCase() + notebook.type.slice(1)}
+            Create Notebook
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {notebooks.map((notebook) => (
+            <Link
+              key={notebook.id}
+              href={`/study-room/notebook/${notebook.id}`}
+              className="group relative p-6 rounded-2xl border border-clay-border bg-[var(--input-bg)] hover:bg-[var(--card-hover-bg)] hover:border-[var(--card-hover-border)] transition-all flex flex-col h-48"
+            >
+              <div className="flex justify-between items-start mb-4">
+                <div
+                  className={`px-3 py-1 text-xs font-bold rounded-full ${
+                    notebook.type === "learn"
+                      ? "bg-blue-500/10 text-blue-600 dark:text-blue-400"
+                      : "bg-green-500/10 text-green-600 dark:text-green-400"
+                  }`}
+                >
+                  {notebook.type.charAt(0).toUpperCase() + notebook.type.slice(1)}
+                </div>
+                <div className="text-xs font-bold text-text-dim px-2 py-1 bg-[var(--clay-bg)] rounded-full">
+                  {notebook.messages.length} msgs
+                </div>
               </div>
-            </div>
-            <h3 className="text-xl font-bold text-text mb-2 line-clamp-2 group-hover:text-accent-base transition-colors">
-              {notebook.title}
-            </h3>
-            <p className="text-sm text-text-dim mt-auto">
-              Updated {new Date(notebook.updated_at).toLocaleDateString()}
-            </p>
-          </Link>
-        ))}
-      </div>
+              <h3 className="text-xl font-bold text-text mb-2 line-clamp-2 group-hover:text-accent-base transition-colors pr-8">
+                {notebook.title}
+              </h3>
+              <p className="text-sm text-text-dim mt-auto">
+                Updated {new Date(notebook.updated_at).toLocaleDateString()}
+              </p>
+              
+              <button
+                onClick={(e) => handleDelete(e, notebook.id)}
+                className="absolute right-4 top-[50%] -translate-y-[50%] opacity-0 group-hover:opacity-100 p-2 text-red-500 hover:bg-red-500/10 rounded-xl transition-all"
+                title="Delete Notebook"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+                </svg>
+              </button>
+            </Link>
+          ))}
+        </div>
+      )}
 
       {/* New Notebook Dialog Modal */}
       {showNewDialog && (

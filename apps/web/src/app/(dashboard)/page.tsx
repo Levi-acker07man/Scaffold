@@ -29,6 +29,11 @@ export default function DashboardPage() {
   const [newTaskLabel, setNewTaskLabel] = useState("");
   const [newFutureTaskLabel, setNewFutureTaskLabel] = useState("");
   const [user, setUser] = useState<any>(null);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const normalizeTasksByDay = (taskList: Task[], referenceTodayStr: string): Task[] => {
     const counts: Record<string, number> = {};
@@ -447,6 +452,10 @@ export default function DashboardPage() {
     (d) => d.dateStr === selectedFutureDate
   );
 
+  if (!isMounted) {
+    return <div className="w-full h-full flex items-center justify-center text-text-dim">Loading...</div>;
+  }
+
   return (
     <div className="flex flex-col lg:flex-row gap-6 w-full h-full flex-1 min-h-0">
       {/* ══════════════════════════════════════════════════
@@ -538,7 +547,7 @@ export default function DashboardPage() {
             todayTasks.map((task) => (
               <div
                 key={task.id}
-                className={`flex items-center gap-4 p-4 lg:p-5 rounded-2xl transition-all duration-300 ease-out transform hover:-translate-y-0.5 hover:scale-[1.01] border group w-full ${
+                className={`flex items-center gap-4 p-4 lg:p-5 rounded-2xl transition-all duration-300 ease-out transform hover:-translate-y-0.5 hover:scale-[1.01] hover:z-10 relative border group w-full ${
                   task.done
                     ? "border-emerald-300/80 bg-gradient-to-r from-emerald-500/10 to-emerald-500/5 shadow-sm"
                     : "border-clay-border hover:border-accent-border/60 hover:shadow-md bg-white dark:bg-panel"
@@ -587,13 +596,16 @@ export default function DashboardPage() {
                         COMPLETED ✓
                       </span>
                     )}
-                    <span
-                      className="text-[11px] font-mono font-extrabold px-2 py-0.5 rounded-md bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 flex items-center gap-1.5 shrink-0"
-                      title="Daily reward share for this task"
-                    >
-                      <span>🪙 {task.coins || 10}</span>
-                      <span className="text-purple-400">⚡ {task.xp || 10} XP</span>
-                    </span>
+                      <span
+                        className="text-[11px] font-mono font-extrabold px-2 py-0.5 rounded-md bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 flex items-center gap-1.5 shrink-0"
+                        title="Daily reward share for this task"
+                      >
+                        <span>🪙 {task.coins || 10}</span>
+                        <span className="text-gray-600 dark:text-white flex items-center gap-1">
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                          {task.xp || 10} XP
+                        </span>
+                      </span>
                   </div>
                 </div>
 
@@ -967,7 +979,7 @@ export default function DashboardPage() {
                 futureTasksForSelectedDate.map((task, idx) => (
                   <div
                     key={task.id}
-                    className="flex items-center justify-between gap-3 p-3 rounded-xl border border-clay-border bg-white dark:bg-panel hover:border-accent-border/60 hover:shadow-sm transition-all duration-300 ease-out transform hover:-translate-y-0.5 hover:scale-[1.01] group shrink-0"
+                    className="flex items-center justify-between gap-3 p-3 rounded-xl border border-clay-border bg-white dark:bg-panel hover:border-accent-border/60 hover:shadow-sm transition-all duration-300 ease-out transform hover:-translate-y-0.5 hover:scale-[1.01] hover:z-10 relative group shrink-0"
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
                       {/* Number badge instead of checkbox */}
@@ -979,7 +991,10 @@ export default function DashboardPage() {
                       </span>
                       <span className="text-[10px] font-mono font-extrabold px-2 py-0.5 rounded-md bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 flex items-center gap-1 shrink-0">
                         <span>🪙 {task.coins || 10}</span>
-                        <span className="text-purple-400">⚡ {task.xp || 10} XP</span>
+                        <span className="text-gray-600 dark:text-white flex items-center gap-1">
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                          {task.xp || 10} XP
+                        </span>
                       </span>
                     </div>
 

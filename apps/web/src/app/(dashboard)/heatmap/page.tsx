@@ -28,30 +28,11 @@ const formatLocalDate = (d: Date) => {
 };
 
 const getCodingLevelInfo = (lvl: number) => {
-  const tiers = [
-    "short",
-    "int",
-    "long",
-    "long long",
-    "unsigned int",
-    "double precision",
-    "bitmask",
-    "segment tree",
-    "graph master",
-    "dynamic coder",
-    "kernel hacker",
-    "quantum wizard",
-  ];
   const safeLvl = Math.max(1, lvl);
-  const tierIndex = Math.floor((safeLvl - 1) / 3) % tiers.length;
-  const subLevel = (safeLvl - 1) % 3; // 0 -> I, 1 -> II, 2 -> III
-  const romans = ["I", "II", "III"];
-  const title = tiers[tierIndex];
-  const roman = romans[subLevel];
   return {
-    title,
-    roman,
-    fullName: `${title} ${roman}`,
+    title: "Level",
+    roman: safeLvl.toString(),
+    fullName: `Level ${safeLvl}`,
   };
 };
 
@@ -668,9 +649,6 @@ export default function HeatmapPage() {
                 {currLevelInfo.roman}
               </span>
             </div>
-            <span className="text-xs sm:text-sm font-extrabold text-text-dim mt-2 font-mono tracking-widest">
-              LEVEL {level} DEVELOPER
-            </span>
           </div>
 
           {/* Right: Total XP badge inside whole box */}
@@ -753,9 +731,6 @@ export default function HeatmapPage() {
                 {unlockedBadges.length} Unlocked
               </span>
             </div>
-            <p className="text-xs text-text-dim mt-1 font-mono">
-              Showing only unlocked badges • Click any badge to open 3D Starry View
-            </p>
           </div>
         </div>
 

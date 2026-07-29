@@ -218,7 +218,7 @@ export function AvatarPicker({ initialPic, initialFrame, initials }: { initialPi
                   }}
                 />
                 <span className="relative z-10 text-xs font-black text-white drop-shadow-md flex items-center gap-2">
-                  ✨ Login Theme (Default)
+                  Default
                 </span>
                 {background.value === 'live-auth' && (
                   <span className="relative z-10 text-[10px] font-black bg-accent-base text-black px-2.5 py-0.5 rounded-full shadow-md">
@@ -274,7 +274,7 @@ export function AvatarPicker({ initialPic, initialFrame, initials }: { initialPi
                       )}
                       <span className="absolute bottom-1 left-2 text-[10px] font-bold text-white z-10 drop-shadow-md capitalize bg-black/40 px-2 py-0.5 rounded">
                         {bg === "live-auth"
-                          ? "Login Theme (Default)"
+                          ? "Default"
                           : bg === "live-celestial"
                             ? "Celestial Horizon"
                             : bg === "live-matrix"
@@ -302,15 +302,6 @@ export function AvatarPicker({ initialPic, initialFrame, initials }: { initialPi
                   Done
                 </button>
               </div>
-
-              {/* Shop Prompt Banner */}
-              <a
-                href="/shop"
-                onClick={() => setIsOpen(false)}
-                className="w-full mt-3 py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-500/10 via-yellow-500/10 to-amber-500/10 hover:from-amber-500/20 hover:to-amber-500/20 border border-amber-500/30 text-amber-600 dark:text-amber-400 font-extrabold text-xs flex items-center justify-center gap-2 shadow-sm transition-all"
-              >
-                <span>🛍️ Visit Shop to unlock more Wallpapers & Themes →</span>
-              </a>
             </div>
           )}
         </motion.div>

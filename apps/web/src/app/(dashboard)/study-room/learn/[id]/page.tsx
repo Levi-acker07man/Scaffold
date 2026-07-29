@@ -1,8 +1,10 @@
+"use client";
+
 import { ChatInterface } from "@/features/study-room/components/ChatInterface";
 
 export default function LearnModePage({ params }: { params: { id: string } }) {
   return (
-    <div className="h-[calc(100vh-8rem)] w-full max-w-5xl mx-auto">
+    <div className="flex-1 w-full max-w-7xl mx-auto min-h-0 -mb-8">
       <ChatInterface notebookId={params.id} mode="learn" />
     </div>
   );

@@ -17,7 +17,7 @@ export default function DashboardTemplate({
         damping: 20,
         duration: 0.3,
       }}
-      className="w-full h-full flex flex-col min-h-0"
+      className="w-full flex-1 flex flex-col min-h-0"
     >
       {children}
     </motion.div>

@@ -42,3 +42,22 @@ export interface Flashcard {
   back: string;
   created_at: string;
 }
+
+export interface MindmapTopic {
+  id: string;
+  label: string;
+  description?: string;
+  children?: MindmapTopic[];
+}
+
+export interface StoredNotebook {
+  id: string;
+  title: string;
+  type: NotebookType;
+  messages: Message[];
+  topics: MindmapTopic[];
+  flashcards: Flashcard[];
+  context?: string;
+  created_at: string;
+  updated_at: string;
+}
