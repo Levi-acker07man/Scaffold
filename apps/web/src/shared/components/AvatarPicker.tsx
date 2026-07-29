@@ -8,6 +8,7 @@ import { createPortal } from "react-dom"
 import { useBackground } from "@/shared/context/BackgroundContext"
 import { useTheme } from "next-themes"
 import { useShop, SHOP_THEMES } from "@/shared/context/ShopContext"
+import Image from "next/image"
 
 export function AvatarPicker({ initialPic, initialFrame, initials }: { initialPic?: string, initialFrame?: string, initials: string }) {
   const [isOpen, setIsOpen] = React.useState(false)
@@ -153,7 +154,9 @@ export function AvatarPicker({ initialPic, initialFrame, initials }: { initialPi
                       className={`w-12 h-12 rounded-full overflow-hidden border-2 transition-all ${profilePic === pic ? 'border-accent-base scale-110' : 'border-transparent hover:border-clay-border'}`}
                     >
                       {getPicUrl(pic) ? (
-                        <img src={getPicUrl(pic)!} alt={pic} className="w-full h-full object-cover" />
+                        <div className="relative w-full h-full">
+                          <Image src={getPicUrl(pic)!} alt={pic} fill className="object-cover" />
+                        </div>
                       ) : (
                         <div className="w-full h-full bg-input-bg border border-clay-border" />
                       )}
@@ -173,13 +176,18 @@ export function AvatarPicker({ initialPic, initialFrame, initials }: { initialPi
                     >
                       <div className="absolute inset-2 bg-input-bg rounded-full border border-clay-border" />
                       {getFrameUrl(frame) ? (
-                        <motion.img
-                          src={getFrameUrl(frame)!}
-                          alt={frame}
-                          className="absolute inset-0 w-full h-full object-cover scale-[1.6] origin-center mix-blend-screen z-20"
+                        <motion.div
+                          className="absolute inset-0 w-full h-full z-20 mix-blend-screen"
                           animate={{ rotate: 360 }}
-                          transition={{ repeat: Infinity, duration: 12, ease: "linear" }}
-                        />
+                          transition={{ repeat: Infinity, duration: 20, ease: "linear" }}
+                        >
+                          <Image
+                            src={getFrameUrl(frame)!}
+                            alt={frame}
+                            fill
+                            className="object-cover scale-[1.6] origin-center"
+                          />
+                        </motion.div>
                       ) : (
                         <div className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-text-dim">None</div>
                       )}
@@ -241,7 +249,9 @@ export function AvatarPicker({ initialPic, initialFrame, initials }: { initialPi
                       className={`w-full h-20 flex-shrink-0 rounded-xl overflow-hidden border-2 transition-all relative group cursor-pointer ${background.value === bg ? 'border-accent-base shadow-md' : 'border-transparent hover:border-clay-border'}`}
                     >
                       {bg.startsWith("/") ? (
-                        <img src={bg} alt="Background" className="w-full h-full object-cover" />
+                        <div className="relative w-full h-full">
+                          <Image src={bg} alt="Background" fill className="object-cover" />
+                        </div>
                       ) : (
                         <div className={`w-full h-full ${bg}`} />
                       )}
@@ -330,21 +340,29 @@ export function AvatarPicker({ initialPic, initialFrame, initials }: { initialPi
 
         <div className="absolute inset-[3px] rounded-full bg-clay-bg overflow-hidden flex items-center justify-center border-[1.5px] border-clay-border z-10 shadow-sm">
           {getPicUrl(profilePic) ? (
-            <img src={getPicUrl(profilePic)!} alt="Profile" className="w-full h-full object-cover" />
+            <div className="relative w-full h-full">
+              <Image src={getPicUrl(profilePic)!} alt="Profile" fill className="object-cover" />
+            </div>
           ) : (
             <span className="font-bold text-accent-base text-sm">{initials}</span>
           )}
         </div>
 
-        {getFrameUrl(profileFrame) && (
-          <motion.img
-            src={getFrameUrl(profileFrame)!}
-            alt="Frame"
-            className="absolute inset-0 w-full h-full object-cover pointer-events-none scale-[1.5] origin-center mix-blend-screen z-20"
-            animate={{ rotate: 360 }}
-            transition={{ repeat: Infinity, duration: 12, ease: "linear" }}
-          />
-        )}
+          {getFrameUrl(profileFrame) && (
+            <motion.div
+              className="absolute inset-0 w-full h-full mix-blend-screen pointer-events-none"
+              style={{ zIndex: 20 }}
+              animate={{ rotate: 360 }}
+              transition={{ repeat: Infinity, duration: 20, ease: "linear" }}
+            >
+              <Image
+                src={getFrameUrl(profileFrame)!}
+                alt="Frame"
+                fill
+                className="object-cover scale-[1.6] origin-center"
+              />
+            </motion.div>
+          )}
       </button>
 
       {mounted && createPortal(dropdown, document.body)}

@@ -143,7 +143,7 @@ export default function NotebookPage({ params }: { params: { id: string } }) {
       </div>
 
       {/* Content Area */}
-      <div className="flex-1 min-h-[500px] bg-[var(--clay-bg)] rounded-3xl border border-clay-border overflow-hidden relative">
+      <div className="flex-1 min-h-[70vh] bg-[var(--clay-bg)] rounded-3xl border border-clay-border overflow-hidden relative flex flex-col min-h-0">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
@@ -151,7 +151,7 @@ export default function NotebookPage({ params }: { params: { id: string } }) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}
             transition={{ type: "spring", stiffness: 260, damping: 20, duration: 0.3 }}
-            className="w-full h-full"
+            className="w-full h-full flex-1 flex flex-col min-h-0"
           >
             {activeTab === "mindmap" && (
               <div className="w-full h-full min-h-[500px]">
@@ -178,7 +178,7 @@ export default function NotebookPage({ params }: { params: { id: string } }) {
             )}
 
             {activeTab === "chat" && (
-              <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 h-full">
+              <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 min-h-0 h-full">
                 {notebook.messages.length === 0 ? (
                   <div className="text-center text-text-dim mt-8">No messages in this chat.</div>
                 ) : (

@@ -5,7 +5,11 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { ThemeToggle } from "@/shared/components/ThemeToggle";
-import { AvatarPicker } from "@/shared/components/AvatarPicker";
+import dynamic from 'next/dynamic';
+
+const AvatarPicker = dynamic(() => import('@/shared/components/AvatarPicker').then(mod => mod.AvatarPicker), {
+  ssr: false,
+});
 import { useShop } from "@/shared/context/ShopContext";
 
 

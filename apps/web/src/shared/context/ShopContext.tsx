@@ -109,43 +109,33 @@ interface ShopContextType {
 const ShopContext = createContext<ShopContextType | undefined>(undefined);
 
 export function ShopProvider({ children }: { children: React.ReactNode }) {
-  const [coins, setCoins] = useState<number>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("scaffold_coins");
-      if (stored !== null && !isNaN(Number(stored))) {
-        return Number(stored);
-      }
-    }
-    return 1200; // Give new users 1200 coins so they can purchase themes in the shop
-  });
-
-  const [xp, setXp] = useState<number>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("scaffold_xp");
-      if (stored !== null && !isNaN(Number(stored))) {
-        return Number(stored);
-      }
-    }
-    return 0;
-  });
-
-  const [unlockedThemes, setUnlockedThemes] = useState<string[]>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("scaffold_unlocked_themes");
-      if (stored) {
-        try {
-          return JSON.parse(stored);
-        } catch (e) {
-          // ignore
-        }
-      }
-    }
-    return [];
-  });
+  const [coins, setCoins] = useState<number>(1200);
+  const [xp, setXp] = useState<number>(0);
+  const [unlockedThemes, setUnlockedThemes] = useState<string[]>([]);
 
   const supabase = createClient();
 
+  // Load from localStorage first, then override with Supabase if available
   useEffect(() => {
+    // Hydrate from localStorage
+    try {
+      const storedCoins = localStorage.getItem("scaffold_coins");
+      if (storedCoins !== null && !isNaN(Number(storedCoins))) {
+        setCoins(Number(storedCoins));
+      }
+      const storedXp = localStorage.getItem("scaffold_xp");
+      if (storedXp !== null && !isNaN(Number(storedXp))) {
+        setXp(Number(storedXp));
+      }
+      const storedThemes = localStorage.getItem("scaffold_unlocked_themes");
+      if (storedThemes) {
+        try {
+          setUnlockedThemes(JSON.parse(storedThemes));
+        } catch (e) {}
+      }
+    } catch (e) {}
+
+    // Then fetch from Supabase to get latest values
     const fetchShopData = async () => {
       const {
         data: { session },
@@ -154,24 +144,18 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
         const meta = session.user.user_metadata;
         if (typeof meta.coins === "number") {
           setCoins(meta.coins);
-          if (typeof window !== "undefined") {
-            localStorage.setItem("scaffold_coins", meta.coins.toString());
-          }
+          localStorage.setItem("scaffold_coins", meta.coins.toString());
         }
         if (typeof meta.xp === "number") {
           setXp(meta.xp);
-          if (typeof window !== "undefined") {
-            localStorage.setItem("scaffold_xp", meta.xp.toString());
-          }
+          localStorage.setItem("scaffold_xp", meta.xp.toString());
         }
         if (Array.isArray(meta.unlockedThemes)) {
           setUnlockedThemes(meta.unlockedThemes);
-          if (typeof window !== "undefined") {
-            localStorage.setItem(
-              "scaffold_unlocked_themes",
-              JSON.stringify(meta.unlockedThemes)
-            );
-          }
+          localStorage.setItem(
+            "scaffold_unlocked_themes",
+            JSON.stringify(meta.unlockedThemes)
+          );
         }
       }
     };

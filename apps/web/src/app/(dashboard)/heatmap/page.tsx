@@ -179,6 +179,11 @@ export default function HeatmapPage() {
   const [activityMap, setActivityMap] = useState<Record<string, DayActivity>>({});
   const [loading, setLoading] = useState<boolean>(true);
   const [user, setUser] = useState<any>(null);
+  const [isMounted, setIsMounted] = useState<boolean>(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const supabase = useMemo(() => createClient(), []);
   const todayStr = useMemo(() => formatLocalDate(new Date()), []);
@@ -443,6 +448,10 @@ export default function HeatmapPage() {
       year: "numeric",
     });
   }, []);
+
+  if (!isMounted) {
+    return <div className="w-full h-full flex items-center justify-center text-text-dim">Loading...</div>;
+  }
 
   return (
     <div className="flex flex-col gap-5 sm:gap-6 w-full pb-20 sm:pb-28">

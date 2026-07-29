@@ -40,7 +40,7 @@ export function FlashcardDeck({ cards }: { cards: Flashcard[] }) {
         onClick={() => setIsFlipped(!isFlipped)}
       >
         <div
-          className="absolute w-full h-full transition-all duration-500 rounded-2xl"
+          className="absolute w-full h-full transition-transform duration-500 rounded-2xl"
           style={{
             transformStyle: "preserve-3d",
             transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
@@ -48,8 +48,12 @@ export function FlashcardDeck({ cards }: { cards: Flashcard[] }) {
         >
           {/* Front */}
           <div
-            className="absolute w-full h-full bg-[var(--clay-bg)] border-2 border-clay-border rounded-2xl p-8 flex flex-col justify-center items-center text-center group-hover:border-accent-base/50 transition-colors"
-            style={{ backfaceVisibility: "hidden" }}
+            className="absolute inset-0 w-full h-full bg-[var(--clay-bg)] border-2 border-clay-border rounded-2xl p-8 flex flex-col justify-center items-center text-center group-hover:border-accent-base/50 transition-colors"
+            style={{
+              backfaceVisibility: "hidden",
+              WebkitBackfaceVisibility: "hidden",
+              zIndex: isFlipped ? 0 : 1,
+            }}
           >
             <span className="absolute top-4 left-4 text-xs font-bold text-accent-base uppercase tracking-wider">
               Question
@@ -62,10 +66,12 @@ export function FlashcardDeck({ cards }: { cards: Flashcard[] }) {
 
           {/* Back */}
           <div
-            className="absolute w-full h-full bg-accent-bg border-2 border-accent-base/30 rounded-2xl p-8 flex flex-col justify-center items-center text-center"
+            className="absolute inset-0 w-full h-full bg-accent-bg border-2 border-accent-base/30 rounded-2xl p-8 flex flex-col justify-center items-center text-center"
             style={{
               backfaceVisibility: "hidden",
+              WebkitBackfaceVisibility: "hidden",
               transform: "rotateY(180deg)",
+              zIndex: isFlipped ? 1 : 0,
             }}
           >
             <span className="absolute top-4 left-4 text-xs font-bold text-accent-base uppercase tracking-wider">
