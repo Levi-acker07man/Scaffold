@@ -273,7 +273,7 @@ export default function DashboardLayout({
 
 
         {/* Page Content */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 pb-10 flex flex-col min-h-0">
+        <div className="flex-1 overflow-y-auto custom-scrollbar px-1 pb-20 flex flex-col min-h-0">
           {children}
         </div>
       </main>
