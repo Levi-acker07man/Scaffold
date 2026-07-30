@@ -179,7 +179,7 @@ export default function ShopPage() {
                           </>
                         ) : (
                           <>
-                            <span>✨ Equip Now</span>
+                            <span>Equip Now</span>
                           </>
                         )}
                       </button>

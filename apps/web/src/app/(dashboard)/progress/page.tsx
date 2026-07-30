@@ -919,13 +919,7 @@ export default function HeatmapPage() {
               {selectedBadge.description}
             </p>
 
-            {/* Action Bottom Button */}
-            <button
-              onClick={() => setSelectedBadge(null)}
-              className="mt-8 px-8 py-3 rounded-full bg-gradient-to-r from-emerald-600 to-green-500 hover:from-emerald-500 hover:to-green-400 text-white font-black text-sm uppercase tracking-wider shadow-[0_0_20px_rgba(34,197,94,0.4)] transition-all transform hover:scale-105 active:scale-95 cursor-pointer"
-            >
-              Return to Heatmap
-            </button>
+
           </div>
         </div>
       )}

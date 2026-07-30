@@ -321,7 +321,6 @@ export default function NotebookPage({ params }: { params: { id: string } }) {
                       >
                         {isMentioned && (
                           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent-base/20 text-accent-base text-xs font-bold mb-2">
-                            <span>✨</span>
                             <span>Mentioned: {highlightedTopic}</span>
                           </div>
                         )}

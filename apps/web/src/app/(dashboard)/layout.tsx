@@ -156,8 +156,8 @@ export default function DashboardLayout({
           />
 
           <SidebarButton
-            href="/heatmap"
-            active={pathname === "/heatmap"}
+            href="/progress"
+            active={pathname === "/progress"}
             icon={
               <svg
                 width="18"
@@ -175,7 +175,7 @@ export default function DashboardLayout({
                 <rect x="14" y="14" width="7" height="7" rx="1" />
               </svg>
             }
-            label="Heatmap"
+            label="Progress"
           />
 
           <div className="h-px bg-black/5 my-2"></div>
