@@ -319,25 +319,10 @@ export function ChatInterface({ notebookId, mode }: ChatInterfaceProps) {
           ))
         )}
         {isTyping && (
-          <div className="bg-[var(--input-bg)] border border-clay-border self-start rounded-2xl rounded-bl-none px-5 py-4 text-text shadow-md flex items-center gap-3.5 animate-in fade-in duration-300">
-            <div className="relative flex items-center justify-center">
-              <div className="w-7 h-7 rounded-full bg-accent-bg border border-accent-border flex items-center justify-center">
-                <span className="w-2 h-2 rounded-full bg-accent-base animate-ping" />
-              </div>
-            </div>
-            <div className="flex flex-col gap-0.5">
-              <span className="text-xs font-extrabold uppercase tracking-widest text-accent-base">
-                Scaffold AI
-              </span>
-              <div className="flex items-center gap-1.5">
-                <span className="text-sm font-medium text-text-dim">Thinking</span>
-                <div className="flex items-center gap-1 mt-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-accent-base animate-bounce [animation-delay:-0.3s]" />
-                  <span className="w-1.5 h-1.5 rounded-full bg-accent-base animate-bounce [animation-delay:-0.15s]" />
-                  <span className="w-1.5 h-1.5 rounded-full bg-accent-base animate-bounce" />
-                </div>
-              </div>
-            </div>
+          <div className="bg-[var(--input-bg)] border border-clay-border self-start rounded-2xl rounded-bl-none px-5 py-4 text-text shadow-sm flex items-center gap-1.5 animate-in fade-in duration-300">
+            <span className="w-2 h-2 rounded-full bg-accent-base animate-bounce [animation-delay:-0.3s]" />
+            <span className="w-2 h-2 rounded-full bg-accent-base animate-bounce [animation-delay:-0.15s]" />
+            <span className="w-2 h-2 rounded-full bg-accent-base animate-bounce" />
           </div>
         )}
       </div>

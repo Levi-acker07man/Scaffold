@@ -13,18 +13,47 @@ export async function POST(req: NextRequest) {
     if (!apiKey) {
       await new Promise((resolve) => setTimeout(resolve, 600));
       return NextResponse.json({
-        summary: "This topic covers foundational principles, key mechanisms, and real-world applications.",
-        keyPoints: [
-          "Understanding the fundamental concepts and core rules.",
-          "Analyzing interactions between primary components.",
-          "Applying structured methodology to solve problems."
+        topics: [
+          {
+            id: "t1",
+            label: "Core Principles & Foundation",
+            description: "Fundamental terminology and core ideas discussed.",
+            children: [
+              { id: "t1-1", label: "Key Definitions", description: "Essential vocabulary and terms" },
+              { id: "t1-2", label: "Primary Mechanisms", description: "How core components interact" },
+              { id: "t1-3", label: "Theoretical Basis", description: "Foundation concepts and rules" }
+            ]
+          },
+          {
+            id: "t2",
+            label: "Structural & Functional Systems",
+            description: "Internal and external architectures.",
+            children: [
+              { id: "t2-1", label: "Internal Anatomy / Architecture", description: "Primary structural elements" },
+              { id: "t2-2", label: "External Components", description: "Surrounding systems and interfaces" }
+            ]
+          },
+          {
+            id: "t3",
+            label: "Processes, Regulation & Cycles",
+            description: "How systems are regulated and maintained over time.",
+            children: [
+              { id: "t3-1", label: "Regulatory Pathways", description: "Control mechanisms and feedback" },
+              { id: "t3-2", label: "Dynamic Cycles", description: "Periodic changes and phases" }
+            ]
+          }
         ],
-        formulas: [
-          { name: "Core Principle", expression: "A + B = C", description: "Basic relationship model" }
-        ],
-        vocabulary: [
-          { term: "Foundation", definition: "The underlying basis or principle on which something stands." },
-          { term: "Mechanism", definition: "A system of mutually adapted parts working together." }
+        flashcards: [
+          {
+            id: "f1",
+            front: "What is the primary mechanism discussed in this session?",
+            back: "A system of mutually adapted components working together to regulate function."
+          },
+          {
+            id: "f2",
+            front: "Why is understanding core terminology essential?",
+            back: "It forms the foundation for analyzing complex interactions and systems."
+          }
         ]
       });
     }
@@ -48,22 +77,42 @@ export async function POST(req: NextRequest) {
     
     prompt += `Transcript:\n${transcript}\n\n`;
     prompt += `Your task is to extract the key learning concepts discussed in the transcript into two JSON formats:
-1. "topics": A hierarchical tree for a mindmap. Each topic should have an 'id', 'label', 'description' (optional), and 'children' (optional array of sub-topics).
-2. "flashcards": A list of Q&A flashcards based on the material discussed. Each flashcard must have an 'id' (a random string), 'front' (the question), and 'back' (the answer).
+1. "topics": A comprehensive hierarchical tree for a concept mindmap. CRITICAL RULE: You MUST generate at least 3 to 5 distinct top-level major branch topics in the "topics" array. DO NOT wrap everything under a single root topic. Each top-level topic MUST have 2 to 4 sub-topics in 'children'.
+2. "flashcards": A list of Q&A flashcards based on the material discussed. Each flashcard must have an 'id', 'front' (the question), and 'back' (the answer).
 
 Return ONLY a valid JSON object matching this schema:
 {
   "topics": [
     {
-      "id": "string",
-      "label": "string",
-      "description": "string",
-      "children": [...]
+      "id": "t1",
+      "label": "First Major Topic Branch",
+      "description": "Summary",
+      "children": [
+        { "id": "t1-1", "label": "Subtopic A", "description": "Details" },
+        { "id": "t1-2", "label": "Subtopic B", "description": "Details" }
+      ]
+    },
+    {
+      "id": "t2",
+      "label": "Second Major Topic Branch",
+      "description": "Summary",
+      "children": [
+        { "id": "t2-1", "label": "Subtopic C", "description": "Details" },
+        { "id": "t2-2", "label": "Subtopic D", "description": "Details" }
+      ]
+    },
+    {
+      "id": "t3",
+      "label": "Third Major Topic Branch",
+      "description": "Summary",
+      "children": [
+        { "id": "t3-1", "label": "Subtopic E", "description": "Details" }
+      ]
     }
   ],
   "flashcards": [
     {
-      "id": "string",
+      "id": "f1",
       "front": "string",
       "back": "string"
     }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { Flashcard } from "@/features/study-room/types";
 
 export function FlashcardDeck({ cards }: { cards: Flashcard[] }) {
@@ -35,24 +36,25 @@ export function FlashcardDeck({ cards }: { cards: Flashcard[] }) {
     <div className="flex flex-col items-center w-full max-w-lg mx-auto">
       {/* Card Container */}
       <div
-        className="relative w-full h-64 cursor-pointer group"
-        style={{ perspective: "1000px" }}
+        className="relative w-full h-64 cursor-pointer group select-none"
+        style={{ perspective: 1000 }}
         onClick={() => setIsFlipped(!isFlipped)}
       >
-        <div
-          className="absolute w-full h-full transition-transform duration-500 rounded-2xl"
-          style={{
-            transformStyle: "preserve-3d",
-            transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
-          }}
+        <motion.div
+          className="w-full h-full relative"
+          animate={{ rotateY: isFlipped ? 180 : 0 }}
+          transition={{ duration: 0.4, ease: "easeInOut" }}
+          style={{ transformStyle: "preserve-3d" }}
         >
           {/* Front */}
           <div
-            className="absolute inset-0 w-full h-full bg-[var(--clay-bg)] border-2 border-clay-border rounded-2xl p-8 flex flex-col justify-center items-center text-center group-hover:border-accent-base/50 transition-colors"
+            className="absolute inset-0 w-full h-full bg-[var(--clay-bg)] border-2 border-clay-border rounded-2xl p-8 flex flex-col justify-center items-center text-center group-hover:border-accent-base/50 transition-all shadow-sm"
             style={{
               backfaceVisibility: "hidden",
               WebkitBackfaceVisibility: "hidden",
-              zIndex: isFlipped ? 0 : 1,
+              opacity: isFlipped ? 0 : 1,
+              pointerEvents: isFlipped ? "none" : "auto",
+              transition: "opacity 0.15s ease-in-out",
             }}
           >
             <span className="absolute top-4 left-4 text-xs font-bold text-accent-base uppercase tracking-wider">
@@ -66,20 +68,25 @@ export function FlashcardDeck({ cards }: { cards: Flashcard[] }) {
 
           {/* Back */}
           <div
-            className="absolute inset-0 w-full h-full bg-accent-bg border-2 border-accent-base/30 rounded-2xl p-8 flex flex-col justify-center items-center text-center"
+            className="absolute inset-0 w-full h-full bg-accent-bg border-2 border-accent-base/40 rounded-2xl p-8 flex flex-col justify-center items-center text-center shadow-sm"
             style={{
               backfaceVisibility: "hidden",
               WebkitBackfaceVisibility: "hidden",
               transform: "rotateY(180deg)",
-              zIndex: isFlipped ? 1 : 0,
+              opacity: isFlipped ? 1 : 0,
+              pointerEvents: isFlipped ? "auto" : "none",
+              transition: "opacity 0.15s ease-in-out",
             }}
           >
             <span className="absolute top-4 left-4 text-xs font-bold text-accent-base uppercase tracking-wider">
               Answer
             </span>
-            <p className="text-base text-text leading-relaxed">{currentCard.back}</p>
+            <p className="text-base text-text leading-relaxed font-medium">{currentCard.back}</p>
+            <p className="absolute bottom-4 text-xs text-text-dimmer">
+              Click to flip back
+            </p>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* Controls */}

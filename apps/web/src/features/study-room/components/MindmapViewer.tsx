@@ -146,15 +146,48 @@ function renderEdges(node: PositionedNode): JSX.Element[] {
 }
 
 /* ══════════════════════════════════════════════════════
+   EXPLORE IN CHAT HOVER TOOLTIP (BIGGER & ZERO GAP)
+   ══════════════════════════════════════════════════════ */
+
+function ExploreInChatTooltip({
+  label,
+  onExploreInChat,
+}: {
+  label: string;
+  onExploreInChat?: (label: string) => void;
+}) {
+  if (!onExploreInChat) return null;
+
+  return (
+    <div className="absolute bottom-full left-1/2 -translate-x-1/2 pb-3 -mb-2 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-all duration-200 z-50 flex flex-col items-center">
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onExploreInChat(label);
+        }}
+        className="flex items-center gap-2 bg-accent-base text-[var(--color-void)] px-4 py-2 rounded-xl text-xs font-extrabold shadow-xl hover:scale-105 hover:bg-accent-base/90 whitespace-nowrap cursor-pointer border border-white/25"
+        title="Explore in chat"
+      >
+        <span className="text-base">💬</span>
+        <span>Explore in chat</span>
+      </button>
+      <div className="w-3 h-3 bg-accent-base rotate-45 -mt-1.5 rounded-xs border-r border-b border-white/25" />
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════
    NODE COMPONENT
    ══════════════════════════════════════════════════════ */
 
 function MindmapNode({
   node,
   onToggle,
+  onExploreInChat,
 }: {
   node: PositionedNode;
   onToggle: (id: string) => void;
+  onExploreInChat?: (label: string) => void;
 }) {
   const isRoot = node.depth === 0;
   const isLeaf = !node.hasChildren;
@@ -171,45 +204,60 @@ function MindmapNode({
   const nodeClass = isRoot ? rootClass : isLeaf ? leafClass : branchClass;
 
   return (
-    <button
-      onClick={() => node.hasChildren && onToggle(node.id)}
-      className={`absolute flex items-center gap-1.5 rounded-lg px-4 transition-all duration-200 select-none whitespace-nowrap ${nodeClass} ${
-        node.hasChildren ? "cursor-pointer" : "cursor-default"
-      }`}
+    <div
+      className="absolute group select-none"
       style={{
         left: node.x,
         top: node.y,
         width: node.w,
         height: node.h,
-        fontSize: FONT_SIZE,
-        fontWeight: 600,
+        zIndex: 20,
       }}
     >
-      <span className="flex-1 truncate">{node.label}</span>
-      {node.hasChildren && (
-        <span
-          className={`text-xs flex-shrink-0 transition-transform duration-200 ${
-            isRoot ? "opacity-70" : "text-text-dimmer"
-          } ${node.expanded ? "" : ""}`}
-        >
-          {node.expanded ? "‹" : "›"}
-        </span>
-      )}
-    </button>
+      <button
+        onClick={() => node.hasChildren && onToggle(node.id)}
+        className={`w-full h-full flex items-center gap-1.5 rounded-lg px-4 transition-all duration-200 select-none whitespace-nowrap ${nodeClass} ${
+          node.hasChildren ? "cursor-pointer" : "cursor-default"
+        }`}
+        style={{
+          fontSize: FONT_SIZE,
+          fontWeight: 600,
+        }}
+      >
+        <span className="flex-1 truncate">{node.label}</span>
+        {node.hasChildren && (
+          <span
+            className={`text-xs flex-shrink-0 transition-transform duration-200 ${
+              isRoot ? "opacity-70" : "text-text-dimmer"
+            } ${node.expanded ? "" : ""}`}
+          >
+            {node.expanded ? "‹" : "›"}
+          </span>
+        )}
+      </button>
+
+      <ExploreInChatTooltip label={node.label} onExploreInChat={onExploreInChat} />
+    </div>
   );
 }
 
 function renderNodes(
   node: PositionedNode,
-  onToggle: (id: string) => void
+  onToggle: (id: string) => void,
+  onExploreInChat?: (label: string) => void
 ): JSX.Element[] {
   const elements: JSX.Element[] = [];
   elements.push(
-    <MindmapNode key={node.id} node={node} onToggle={onToggle} />
+    <MindmapNode
+      key={node.id}
+      node={node}
+      onToggle={onToggle}
+      onExploreInChat={onExploreInChat}
+    />
   );
   if (node.expanded) {
     for (const child of node.children) {
-      elements.push(...renderNodes(child, onToggle));
+      elements.push(...renderNodes(child, onToggle, onExploreInChat));
     }
   }
   return elements;
@@ -250,18 +298,23 @@ function getTreeBounds(node: PositionedNode): {
 interface LearnMindmapProps {
   topics: MindmapTopic[];
   title: string;
+  onExploreInChat?: (label: string) => void;
 }
 
-export function LearnMindmap({ topics, title }: LearnMindmapProps) {
+export function LearnMindmap({ topics, title, onExploreInChat }: LearnMindmapProps) {
   // We wrap all root-level topics under a virtual root
-  const virtualRoot: MindmapTopic = useMemo(
-    () => ({
+  const virtualRoot: MindmapTopic = useMemo(() => {
+    const effectiveTopics =
+      topics.length === 1 && topics[0].children && (topics[0].children.length || 0) > 1
+        ? topics[0].children
+        : topics;
+
+    return {
       id: "__root__",
       label: title,
-      children: topics,
-    }),
-    [topics, title]
-  );
+      children: effectiveTopics,
+    };
+  }, [topics, title]);
 
   // Track expanded nodes — start with all expanded
   const [expandedSet, setExpandedSet] = useState<Set<string>>(() => {
@@ -407,7 +460,7 @@ export function LearnMindmap({ topics, title }: LearnMindmapProps) {
             transform: `translate(${CANVAS_PAD - bounds.minX}px, ${CANVAS_PAD - bounds.minY}px)`,
           }}
         >
-          {renderNodes(tree, toggleNode)}
+          {renderNodes(tree, toggleNode, onExploreInChat)}
         </div>
       </div>
 
@@ -456,9 +509,10 @@ export interface SocraticStep {
 interface SolveMindmapProps {
   problemTitle: string;
   steps: SocraticStep[];
+  onExploreInChat?: (label: string) => void;
 }
 
-export function SolveMindmap({ problemTitle, steps }: SolveMindmapProps) {
+export function SolveMindmap({ problemTitle, steps, onExploreInChat }: SolveMindmapProps) {
   const [revealedCount, setRevealedCount] = useState(1);
   const containerRef = useRef<HTMLDivElement>(null);
   const [zoom, setZoom] = useState(1);
@@ -653,18 +707,27 @@ export function SolveMindmap({ problemTitle, steps }: SolveMindmapProps) {
         >
           {/* Root node */}
           <div
-            className="absolute flex items-center gap-1.5 rounded-lg px-4 bg-[var(--accent-base)] text-[var(--color-void)] border-transparent shadow-md select-none whitespace-nowrap"
+            className="absolute group select-none"
             style={{
               left: rootNode.x,
               top: rootNode.y,
               width: rootNode.w,
               height: rootNode.h,
-              fontSize: FONT_SIZE,
-              fontWeight: 600,
+              zIndex: 20,
             }}
           >
-            <span className="flex-1 truncate">{rootNode.label}</span>
-            <span className="text-xs opacity-70">‹</span>
+            <div
+              className="w-full h-full flex items-center gap-1.5 rounded-lg px-4 bg-[var(--accent-base)] text-[var(--color-void)] border-transparent shadow-md whitespace-nowrap"
+              style={{
+                fontSize: FONT_SIZE,
+                fontWeight: 600,
+              }}
+            >
+              <span className="flex-1 truncate">{rootNode.label}</span>
+              <span className="text-xs opacity-70">‹</span>
+            </div>
+
+            <ExploreInChatTooltip label={rootNode.label} onExploreInChat={onExploreInChat} />
           </div>
 
           {/* Step nodes */}
@@ -698,24 +761,33 @@ export function SolveMindmap({ problemTitle, steps }: SolveMindmapProps) {
             return (
               <div
                 key={child.id}
-                className={`absolute flex items-center gap-1.5 rounded-lg px-4 border whitespace-nowrap transition-all duration-300 ${
-                  isLatest
-                    ? "bg-accent-bg border-accent-base/30 text-text shadow-sm"
-                    : "bg-[var(--input-bg)] border-clay-border text-text"
-                }`}
+                className="absolute group select-none"
                 style={{
                   left: child.x,
                   top: child.y,
                   width: child.w,
                   height: child.h,
-                  fontSize: FONT_SIZE,
-                  fontWeight: 600,
+                  zIndex: 20,
                 }}
               >
-                <span className="w-5 h-5 rounded-full bg-accent-base/10 text-accent-base text-[10px] font-bold flex items-center justify-center flex-shrink-0">
-                  {idx + 1}
-                </span>
-                <span className="flex-1 truncate">{child.label}</span>
+                <div
+                  className={`w-full h-full flex items-center gap-1.5 rounded-lg px-4 border whitespace-nowrap transition-all duration-300 ${
+                    isLatest
+                      ? "bg-accent-bg border-accent-base/30 text-text shadow-sm"
+                      : "bg-[var(--input-bg)] border-clay-border text-text"
+                  }`}
+                  style={{
+                    fontSize: FONT_SIZE,
+                    fontWeight: 600,
+                  }}
+                >
+                  <span className="w-5 h-5 rounded-full bg-accent-base/10 text-accent-base text-[10px] font-bold flex items-center justify-center flex-shrink-0">
+                    {idx + 1}
+                  </span>
+                  <span className="flex-1 truncate">{child.label}</span>
+                </div>
+
+                <ExploreInChatTooltip label={child.label} onExploreInChat={onExploreInChat} />
               </div>
             );
           })}
