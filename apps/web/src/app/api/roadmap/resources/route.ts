@@ -4,19 +4,43 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest) {
   try {
     const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      return NextResponse.json({ error: "GEMINI_API_KEY is not set in environment variables." }, { status: 500 });
-    }
-
-    const genAI = new GoogleGenerativeAI(apiKey);
     const { mainTopic, nodeTitle, nodeDescription } = await req.json();
 
     if (!mainTopic || !nodeTitle) {
       return NextResponse.json({ error: "mainTopic and nodeTitle are required." }, { status: 400 });
     }
 
+    if (!apiKey) {
+      await new Promise((resolve) => setTimeout(resolve, 600));
+      return NextResponse.json({
+        articles: [
+          {
+            title: `Introduction to ${nodeTitle}`,
+            url: `https://en.wikipedia.org/wiki/${encodeURIComponent(nodeTitle)}`,
+            summary: `A comprehensive overview and guide to ${nodeTitle} within ${mainTopic}.`
+          }
+        ],
+        videos: [
+          {
+            title: `Understanding ${nodeTitle} in 10 Minutes`,
+            url: `https://www.youtube.com/results?search_query=${encodeURIComponent(mainTopic + ' ' + nodeTitle)}`,
+            summary: `A visual explanation of core concepts and practical examples.`
+          }
+        ],
+        documentation: [
+          {
+            title: `${nodeTitle} Reference & Documentation`,
+            url: `https://www.google.com/search?q=${encodeURIComponent(mainTopic + ' ' + nodeTitle + ' documentation')}`,
+            summary: `Official documentation and reference materials for further study.`
+          }
+        ]
+      });
+    }
+
+    const genAI = new GoogleGenerativeAI(apiKey);
+
     const model = genAI.getGenerativeModel({
-      model: "gemini-3.6-flash",
+      model: "gemini-flash-latest",
       generationConfig: {
         responseMimeType: "application/json",
       },

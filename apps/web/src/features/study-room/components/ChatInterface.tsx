@@ -78,6 +78,18 @@ export function ChatInterface({ notebookId, mode }: ChatInterfaceProps) {
                return [...prev, aiMessage];
             });
             addMessage(currentNotebookId.current, aiMessage);
+          } else {
+            const errData = await res.json().catch(() => ({}));
+            const errorMsg = errData.error || "Failed to get response from AI server.";
+            const errorMessage: Message = {
+              id: (Date.now() + 1).toString(),
+              notebook_id: currentNotebookId.current,
+              role: "assistant",
+              content: `⚠️ **AI Service Error:**\n\n${errorMsg}\n\n*Please make sure you have added your \`GEMINI_API_KEY\` to \`.env.local\` and restarted your dev server.*`,
+              created_at: new Date().toISOString(),
+            };
+            setMessages((prev) => [...prev, errorMessage]);
+            addMessage(currentNotebookId.current, errorMessage);
           }
         } catch (err) {
           console.error(err);
@@ -139,7 +151,17 @@ export function ChatInterface({ notebookId, mode }: ChatInterfaceProps) {
         setMessages((prev) => [...prev, aiMessage]);
         addMessage(currentNotebookId.current, aiMessage);
       } else {
-        console.error("Chat API error");
+        const errData = await res.json().catch(() => ({}));
+        const errorMsg = errData.error || "Failed to get response from AI server.";
+        const errorMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          notebook_id: currentNotebookId.current,
+          role: "assistant",
+          content: `⚠️ **AI Service Error:**\n\n${errorMsg}\n\n*Please make sure you have added your \`GEMINI_API_KEY\` to \`.env.local\` and restarted your dev server.*`,
+          created_at: new Date().toISOString(),
+        };
+        setMessages((prev) => [...prev, errorMessage]);
+        addMessage(currentNotebookId.current, errorMessage);
       }
     } catch (err) {
       console.error(err);
@@ -297,8 +319,25 @@ export function ChatInterface({ notebookId, mode }: ChatInterfaceProps) {
           ))
         )}
         {isTyping && (
-          <div className="bg-[var(--input-bg)] border border-clay-border self-start rounded-2xl rounded-bl-none p-4 text-text-dim">
-            <span className="animate-pulse">...</span>
+          <div className="bg-[var(--input-bg)] border border-clay-border self-start rounded-2xl rounded-bl-none px-5 py-4 text-text shadow-md flex items-center gap-3.5 animate-in fade-in duration-300">
+            <div className="relative flex items-center justify-center">
+              <div className="w-7 h-7 rounded-full bg-accent-bg border border-accent-border flex items-center justify-center">
+                <span className="w-2 h-2 rounded-full bg-accent-base animate-ping" />
+              </div>
+            </div>
+            <div className="flex flex-col gap-0.5">
+              <span className="text-xs font-extrabold uppercase tracking-widest text-accent-base">
+                Scaffold AI
+              </span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-sm font-medium text-text-dim">Thinking</span>
+                <div className="flex items-center gap-1 mt-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent-base animate-bounce [animation-delay:-0.3s]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent-base animate-bounce [animation-delay:-0.15s]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent-base animate-bounce" />
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>
